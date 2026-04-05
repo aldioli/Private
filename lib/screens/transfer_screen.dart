@@ -4,6 +4,7 @@ import '../providers/wallet_provider.dart';
 import '../utils/constants.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
+import '../widgets/beepay_loading.dart';
 import 'beneficiaries_screen.dart';
 
 class TransferScreen extends StatefulWidget {
@@ -45,7 +46,9 @@ class _TransferScreenState extends State<TransferScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Stack(
+      children: [
+        Scaffold(
       backgroundColor: AppColors.lightGrey.withValues(alpha: 0.3),
       appBar: AppBar(
         title: const Text(
@@ -273,6 +276,15 @@ class _TransferScreenState extends State<TransferScreen> {
           ),
         ),
       ),
+        ),
+        if (context.watch<WalletProvider>().isLoading)
+          Container(
+            color: Colors.black.withValues(alpha: 0.5),
+            child: const Center(
+              child: BeepayLoadingScreen(message: 'جاري تنفيذ التحويل...'),
+            ),
+          ),
+      ],
     );
   }
 

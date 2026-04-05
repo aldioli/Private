@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import '../utils/constants.dart';
+import 'beepay_loading.dart';
 
 // زر مخصص
 class CustomButton extends StatelessWidget {
@@ -42,14 +43,7 @@ class CustomButton extends StatelessWidget {
           shadowColor: (backgroundColor ?? AppColors.primaryBlue).withValues(alpha: 0.3),
         ),
         child: isLoading
-            ? const SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
-                ),
-              )
+            ? const BeepayLoading(size: 32, color: AppColors.white)
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
