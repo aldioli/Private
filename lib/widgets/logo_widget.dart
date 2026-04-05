@@ -1,11 +1,10 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../utils/constants.dart';
 
-// شعار التطبيق
 class LogoWidget extends StatelessWidget {
   final double size;
   final bool showName;
-  
+
   const LogoWidget({
     Key? key,
     this.size = 100,
@@ -21,40 +20,24 @@ class LogoWidget extends StatelessWidget {
           width: size,
           height: size,
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [AppColors.primaryBlue, AppColors.accentYellow],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            color: const Color(0xFFFFD600),
             borderRadius: BorderRadius.circular(size * 0.25),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primaryBlue.withValues(alpha: 0.3),
+                color: const Color(0xFFFFD600).withValues(alpha: 0.4),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
             ],
           ),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              // أيقونة المحفظة
-              Icon(
-                Icons.account_balance_wallet_rounded,
-                size: size * 0.5,
-                color: AppColors.white,
-              ),
-              // نجمة صغيرة للتزيين
-              Positioned(
-                top: size * 0.15,
-                right: size * 0.15,
-                child: Icon(
-                  Icons.star,
-                  size: size * 0.15,
-                  color: AppColors.accentYellow,
-                ),
-              ),
-            ],
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(size * 0.25),
+            child: Image.asset(
+              'assets/images/app_icon.png',
+              width: size,
+              height: size,
+              fit: BoxFit.cover,
+            ),
           ),
         ),
         if (showName) ...[
