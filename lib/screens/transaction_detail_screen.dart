@@ -213,7 +213,7 @@ class TransactionDetailScreen extends StatelessWidget {
 
   void _shareTransaction(BuildContext context) {
     final text =
-        'معاملة YemenPay\nالنوع: ${transaction.type}\nالمبلغ: ${transaction.amount} ${AppConstants.currencySymbol}\nالتاريخ: ${DateFormat('yyyy/MM/dd').format(transaction.createdAt)}\nالرقم: ${transaction.id}';
+        'معاملة Beepay\nالنوع: ${transaction.type}\nالمبلغ: ${transaction.amount} ${AppConstants.currencySymbol}\nالتاريخ: ${DateFormat('yyyy/MM/dd').format(transaction.createdAt)}\nالرقم: ${transaction.id}';
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(

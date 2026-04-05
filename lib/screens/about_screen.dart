@@ -305,7 +305,7 @@ class AboutScreen extends StatelessWidget {
                         GestureDetector(
                           onLongPress: () {
                             Clipboard.setData(
-                                const ClipboardData(text: 'YemenPay v$_version build $_buildNumber'));
+                                const ClipboardData(text: 'Beepay v$_version build $_buildNumber'));
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text('تم نسخ معلومات الإصدار',

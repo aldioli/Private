@@ -187,7 +187,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     _ActionTile(
                       icon: Icons.info_outline_rounded,
                       title: 'الإصدار ${AppConstants.appVersion}',
-                      subtitle: 'YemenPay — محفظتك الرقمية',
+                      subtitle: 'Beepay — محفظتك الرقمية',
                       color: AppColors.grey,
                       onTap: () {},
                       showArrow: false,
@@ -345,7 +345,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: const [
               _TermsParagraph('1. الاستخدام',
-                  'يمنحك YemenPay رخصة محدودة لاستخدام التطبيق للأغراض الشخصية غير التجارية.'),
+                  'يمنحك Beepay رخصة محدودة لاستخدام التطبيق للأغراض الشخصية غير التجارية.'),
               _TermsParagraph('2. الحساب',
                   'أنت مسؤول عن الحفاظ على سرية معلومات حسابك وكلمة المرور.'),
               _TermsParagraph('3. المعاملات',

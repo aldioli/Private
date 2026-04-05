@@ -55,7 +55,7 @@ class _RequestMoneyScreenState extends State<RequestMoneyScreen>
   String _buildQrData(String walletNumber) {
     final amount = _amountController.text.trim();
     final note = _noteController.text.trim();
-    String data = 'yemenpay://request?wallet=$walletNumber';
+    String data = 'beepay://request?wallet=$walletNumber';
     if (amount.isNotEmpty) data += '&amount=$amount';
     if (note.isNotEmpty) data += '&note=${Uri.encodeComponent(note)}';
     return data;

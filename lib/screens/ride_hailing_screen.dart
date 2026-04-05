@@ -156,7 +156,7 @@ class _RideHailingScreenState extends State<RideHailingScreen>
             const SizedBox(height: 16),
             const Text('وصلت بسلام!', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'Cairo')),
             const SizedBox(height: 8),
-            const Text('شكراً لاختيارك YemenPay Ride', style: TextStyle(color: AppColors.grey, fontFamily: 'Cairo'), textAlign: TextAlign.center),
+            const Text('شكراً لاختيارك Beepay Ride', style: TextStyle(color: AppColors.grey, fontFamily: 'Cairo'), textAlign: TextAlign.center),
             const SizedBox(height: 16),
             const Text('قيّم رحلتك', style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Cairo')),
             const SizedBox(height: 8),

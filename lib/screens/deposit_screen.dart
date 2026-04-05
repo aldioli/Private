@@ -442,7 +442,7 @@ class _CardDepositTabState extends State<_CardDepositTab> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text(
-                              'YemenPay',
+                              'Beepay',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontFamily: 'Cairo',
@@ -729,7 +729,7 @@ class _BankDepositTabState extends State<_BankDepositTab> {
                   const SizedBox(width: 10),
                   const Expanded(
                     child: Text(
-                      'أرسل التحويل إلى الحساب البنكي لـ YemenPay ثم أدخل رقم العملية',
+                      'أرسل التحويل إلى الحساب البنكي لـ Beepay ثم أدخل رقم العملية',
                       style: TextStyle(
                           color: Colors.white70,
                           fontFamily: 'Cairo',
@@ -758,7 +758,7 @@ class _BankDepositTabState extends State<_BankDepositTab> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('حسابات YemenPay البنكية',
+                  const Text('حسابات Beepay البنكية',
                       style: AppTextStyles.heading3),
                   const SizedBox(height: AppSizes.paddingM),
                   ...[
@@ -1008,9 +1008,9 @@ class _AgentDepositTab extends StatelessWidget {
           _MethodSection(
             icon: Icons.store_rounded,
             color: AppColors.success,
-            title: 'وكيل YemenPay المعتمد',
+            title: 'وكيل Beepay المعتمد',
             steps: const [
-              'ابحث عن أقرب وكيل YemenPay في منطقتك',
+              'ابحث عن أقرب وكيل Beepay في منطقتك',
               'أعطِه رقم محفظتك',
               'ادفع المبلغ النقدي',
               'ستصلك رسالة تأكيد فورية',
@@ -1055,7 +1055,7 @@ class _AgentDepositTab extends StatelessWidget {
             title: 'شبكات الاتصالات',
             steps: const [
               'أرسل رسالة تحويل من هاتفك',
-              'اكتب رقم محفظتك YemenPay كوجهة',
+              'اكتب رقم محفظتك Beepay كوجهة',
               'حدد المبلغ وأرسل',
               'سيُضاف الرصيد تلقائياً',
             ],

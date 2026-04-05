@@ -35,7 +35,7 @@ const _levels = [
     dark: Color(0xFF8B4513),
     icon: Icons.star_outline_rounded,
     benefits: [
-      'تحويل مجاني بين محافظ YemenPay',
+      'تحويل مجاني بين محافظ Beepay',
       'دفع الفواتير',
       'حد يومي: 1,000,000 ريال',
       'خدمة عملاء عبر البريد الإلكتروني',

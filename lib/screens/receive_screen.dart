@@ -43,9 +43,9 @@ class _ReceiveScreenState extends State<ReceiveScreen>
     final wallet = Provider.of<WalletProvider>(context, listen: false);
     final walletNum = wallet.wallet?.walletNumber ?? '';
     if (_showAmountQr && _amountController.text.isNotEmpty) {
-      return 'yemenpay://pay?wallet=$walletNum&amount=${_amountController.text}';
+      return 'beepay://pay?wallet=$walletNum&amount=${_amountController.text}';
     }
-    return 'yemenpay://pay?wallet=$walletNum';
+    return 'beepay://pay?wallet=$walletNum';
   }
 
   void _copyWalletNumber(String walletNum) {
@@ -70,7 +70,7 @@ class _ReceiveScreenState extends State<ReceiveScreen>
   void _shareWalletNumber(String walletNum, String name) {
     // في التطبيق الحقيقي نستخدم share_plus package
     Clipboard.setData(ClipboardData(
-        text: 'رقم محفظتي في YemenPay: $walletNum\nالاسم: $name'));
+        text: 'رقم محفظتي في Beepay: $walletNum\nالاسم: $name'));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text('تم نسخ معلومات المشاركة',
@@ -328,7 +328,7 @@ class _ReceiveScreenState extends State<ReceiveScreen>
                     children: [
                       _InfoRow(
                         icon: Icons.qr_code_scanner_rounded,
-                        text: 'اطلب من المُرسِل مسح رمز QR بتطبيق YemenPay',
+                        text: 'اطلب من المُرسِل مسح رمز QR بتطبيق Beepay',
                       ),
                       const SizedBox(height: 10),
                       _InfoRow(

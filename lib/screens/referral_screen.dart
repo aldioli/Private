@@ -63,7 +63,7 @@ class _ReferralScreenState extends State<ReferralScreen>
   void _shareCode() {
     Clipboard.setData(const ClipboardData(
       text:
-          'انضم إلى YemenPay واحصل على مكافأة ترحيبية!\nرمز الدعوة: YEMEN2024\nحمّل التطبيق الآن',
+          'انضم إلى Beepay واحصل على مكافأة ترحيبية!\nرمز الدعوة: YEMEN2024\nحمّل التطبيق الآن',
     ));
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -321,7 +321,7 @@ class _ReferralScreenState extends State<ReferralScreen>
                   _StepRow(
                     number: '٢',
                     text:
-                        'يُسجّل صديقك في YemenPay ويدخل رمزك',
+                        'يُسجّل صديقك في Beepay ويدخل رمزك',
                     color: AppColors.info,
                   ),
                   _StepRow(

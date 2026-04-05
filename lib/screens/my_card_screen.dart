@@ -282,7 +282,7 @@ class _CardFront extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      'YemenPay',
+                      'Beepay',
                       style: TextStyle(
                         color: Colors.white,
                         fontFamily: 'Cairo',

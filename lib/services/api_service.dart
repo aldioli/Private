@@ -329,7 +329,7 @@ class ApiService {
         amount: amount,
         status: 'completed',
         toWallet: toWallet,
-        recipientName: 'مستخدم YemenPay',
+        recipientName: 'مستخدم Beepay',
         description: description ?? 'تحويل',
         createdAt: DateTime.now(),
         completedAt: DateTime.now(),
@@ -536,7 +536,7 @@ class ApiService {
     if (_demoMode) {
       await Future.delayed(const Duration(milliseconds: 500));
       if (walletNumber.length >= 10) {
-        return {'name': 'مستخدم YemenPay', 'wallet_number': walletNumber};
+        return {'name': 'مستخدم Beepay', 'wallet_number': walletNumber};
       }
       throw Exception('رقم المحفظة غير موجود');
     }

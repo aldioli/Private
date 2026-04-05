@@ -16,7 +16,7 @@ class _SupportScreenState extends State<SupportScreen> {
 
   final List<_Message> _messages = [
     _Message(
-      text: 'مرحباً بك في دعم YemenPay 👋\nأنا مساعدك الافتراضي، كيف يمكنني مساعدتك اليوم؟',
+      text: 'مرحباً بك في دعم Beepay 👋\nأنا مساعدك الافتراضي، كيف يمكنني مساعدتك اليوم؟',
       isAgent: true,
       time: DateTime.now().subtract(const Duration(minutes: 1)),
     ),

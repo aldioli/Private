@@ -295,7 +295,7 @@ class _TransferScreenState extends State<TransferScreen> {
       
       if (result != null && mounted) {
         setState(() {
-          _recipientName = result['name'] ?? 'مستخدم YemenPay';
+          _recipientName = result['name'] ?? 'مستخدم Beepay';
           _isCheckingWallet = false;
         });
       } else {

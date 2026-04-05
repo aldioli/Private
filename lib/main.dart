@@ -96,11 +96,11 @@ void main() async {
     ),
   );
 
-  runApp(const YemenPayApp());
+  runApp(const BeepayApp());
 }
 
-class YemenPayApp extends StatelessWidget {
-  const YemenPayApp({super.key});
+class BeepayApp extends StatelessWidget {
+  const BeepayApp({super.key});
 
   @override
   Widget build(BuildContext context) {

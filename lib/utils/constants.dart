@@ -49,29 +49,29 @@ class AppColors {
 // الثوابت العامة
 class AppConstants {
   // معلومات التطبيق
-  static const String appName = 'YemenPay';
+  static const String appName = 'Beepay';
   static const String appVersion = '1.0.0';
   static const String currencySymbol = 'ريال';
   static const String currencyCode = 'YER';
-  
+
   // حدود المعاملات
   static const double minTransferAmount = 100.0;
   static const double maxTransferAmount = 500000.0;
   static const double minWithdrawalAmount = 500.0;
   static const double maxWithdrawalAmount = 200000.0;
   static const double dailyTransferLimit = 1000000.0;
-  
+
   // رسوم المعاملات
   static const double transferFeePercent = 0.0; // مجاني حالياً
   static const double withdrawalFee = 0.0;
-  
+
   // معلومات الاتصال
   static const String supportPhone = '+967 777 123 456';
-  static const String supportEmail = 'support@yemenpay.ye';
-  static const String website = 'https://yemenpay.ye';
-  
+  static const String supportEmail = 'support@beepay.ye';
+  static const String website = 'https://beepay.ye';
+
   // API (ستحتاج لتغييره للسيرفر الفعلي)
-  static const String baseUrl = 'https://api.yemenpay.ye';
+  static const String baseUrl = 'https://api.beepay.ye';
   static const String apiVersion = 'v1';
   
   // أطوال الحقول

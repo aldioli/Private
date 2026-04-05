@@ -721,7 +721,7 @@ class ProfileScreen extends StatelessWidget {
                 const SizedBox(height: AppSizes.paddingXL),
 
                 Text(
-                  'YemenPay v${AppConstants.appVersion}',
+                  'Beepay v${AppConstants.appVersion}',
                   style: const TextStyle(
                     color: AppColors.grey,
                     fontFamily: 'Cairo',
@@ -769,7 +769,7 @@ class ProfileScreen extends StatelessWidget {
               ),
               padding: const EdgeInsets.all(8),
               child: QrImageView(
-                data: walletProvider.wallet?.walletNumber ?? 'YemenPay',
+                data: walletProvider.wallet?.walletNumber ?? 'Beepay',
                 version: QrVersions.auto,
                 size: 180,
                 eyeStyle: const QrEyeStyle(
