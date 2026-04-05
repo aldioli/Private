@@ -140,8 +140,28 @@ class BeepayApp extends StatelessWidget {
                   children: [
                     child!,
                     if (isLoading)
-                      const Positioned.fill(
-                        child: BeepayLoadingScreen(message: 'جاري المعالجة...'),
+                      Positioned.fill(
+                        child: Container(
+                          color: Colors.black.withValues(alpha: 0.4),
+                          child: const Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                BeepayLoading(size: 100, color: Color(0xFFFFD600)),
+                                SizedBox(height: 16),
+                                Text(
+                                  'جاري المعالجة...',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    fontFamily: 'Cairo',
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
                   ],
                 );
