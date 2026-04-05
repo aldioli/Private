@@ -73,6 +73,7 @@ import 'screens/subscriptions_screen.dart';
 import 'screens/transaction_detail_screen.dart';
 import 'models/transaction.dart';
 import 'utils/constants.dart';
+import 'widgets/beepay_loading.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -132,7 +133,20 @@ class BeepayApp extends StatelessWidget {
         builder: (context, child) {
           return Directionality(
             textDirection: TextDirection.rtl,
-            child: child!,
+            child: Consumer2<AuthProvider, WalletProvider>(
+              builder: (context, auth, wallet, _) {
+                final isLoading = auth.isLoading || wallet.isLoading;
+                return Stack(
+                  children: [
+                    child!,
+                    if (isLoading)
+                      const Positioned.fill(
+                        child: BeepayLoadingScreen(message: 'جاري المعالجة...'),
+                      ),
+                  ],
+                );
+              },
+            ),
           );
         },
 
@@ -631,16 +645,12 @@ class _SplashScreenState extends State<SplashScreen>
                                 color: Colors.white.withValues(alpha: 0.1),
                               ),
                             ),
-                            // الأيقونة الرئيسية
+                            // اللوجو الرئيسي
                             Container(
                               width: 130,
                               height: 130,
                               decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [Colors.white, AppColors.lightYellow],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
+                                color: AppColors.accentYellow,
                                 borderRadius: BorderRadius.circular(38),
                                 boxShadow: [
                                   BoxShadow(
@@ -650,39 +660,18 @@ class _SplashScreenState extends State<SplashScreen>
                                     spreadRadius: 2,
                                   ),
                                   BoxShadow(
-                                    color: AppColors.accentYellow
-                                        .withValues(alpha: 0.3),
+                                    color: AppColors.accentYellow.withValues(alpha: 0.4),
                                     blurRadius: 20,
                                     offset: const Offset(0, 5),
                                   ),
                                 ],
                               ),
-                              child: Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  const Icon(
-                                    Icons.account_balance_wallet_rounded,
-                                    size: 68,
-                                    color: AppColors.primaryBlue,
-                                  ),
-                                  Positioned(
-                                    top: 20,
-                                    right: 20,
-                                    child: Container(
-                                      width: 22,
-                                      height: 22,
-                                      decoration: const BoxDecoration(
-                                        color: AppColors.accentYellow,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.bolt_rounded,
-                                        size: 14,
-                                        color: AppColors.primaryBlue,
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(38),
+                                child: Image.asset(
+                                  'assets/images/app_icon.png',
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
                           ],
@@ -737,18 +726,10 @@ class _SplashScreenState extends State<SplashScreen>
 
                       const SizedBox(height: 70),
 
-                      // مؤشر التحميل
+                      // أنيميشن النحلة
                       Column(
                         children: [
-                          const SizedBox(
-                            width: 32,
-                            height: 32,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.5,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.white70),
-                            ),
-                          ),
+                          const BeepayLoading(size: 60, color: Colors.white),
                           const SizedBox(height: 14),
                           Text(
                             'جاري التحميل...',
