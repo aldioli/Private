@@ -8,6 +8,7 @@ import 'providers/auth_provider.dart';
 import 'providers/wallet_provider.dart';
 import 'providers/settings_provider.dart';
 import 'providers/notifications_provider.dart';
+import 'providers/loading_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/main_screen.dart';
@@ -100,6 +101,25 @@ void main() async {
   runApp(const BeepayApp());
 }
 
+class BeepayNavigatorObserver extends NavigatorObserver {
+  final LoadingProvider loadingProvider;
+  BeepayNavigatorObserver(this.loadingProvider);
+
+  @override
+  void didPush(Route route, Route? previousRoute) {
+    if (previousRoute != null) {
+      loadingProvider.show('جاري التحميل...');
+      Future.delayed(const Duration(milliseconds: 400), loadingProvider.hide);
+    }
+  }
+
+  @override
+  void didPop(Route route, Route? previousRoute) {
+    loadingProvider.show('جاري التحميل...');
+    Future.delayed(const Duration(milliseconds: 300), loadingProvider.hide);
+  }
+}
+
 class BeepayApp extends StatelessWidget {
   const BeepayApp({super.key});
 
@@ -112,6 +132,7 @@ class BeepayApp extends StatelessWidget {
         ChangeNotifierProvider(
             create: (_) => SettingsProvider()..loadSettings()),
         ChangeNotifierProvider(create: (_) => NotificationsProvider()),
+        ChangeNotifierProvider(create: (_) => LoadingProvider()),
       ],
       child: Consumer<SettingsProvider>(
         builder: (context, settings, _) => MaterialApp(
@@ -133,27 +154,28 @@ class BeepayApp extends StatelessWidget {
         builder: (context, child) {
           return Directionality(
             textDirection: TextDirection.rtl,
-            child: Consumer2<AuthProvider, WalletProvider>(
-              builder: (context, auth, wallet, _) {
-                final isLoading = auth.isLoading || wallet.isLoading;
+            child: Consumer3<AuthProvider, WalletProvider, LoadingProvider>(
+              builder: (context, auth, wallet, loading, _) {
+                final isLoading = auth.isLoading || wallet.isLoading || loading.isLoading;
+                final message = loading.isLoading ? loading.message : 'جاري المعالجة...';
                 return Stack(
                   children: [
                     child!,
                     if (isLoading)
                       Positioned.fill(
                         child: Container(
-                          color: Colors.black.withValues(alpha: 0.4),
-                          child: const Center(
+                          color: Colors.black.withValues(alpha: 0.45),
+                          child: Center(
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                BeepayLoading(size: 100, color: Color(0xFFFFD600)),
-                                SizedBox(height: 16),
+                                const BeepayLoading(size: 160, color: Color(0xFFFFD600)),
+                                const SizedBox(height: 20),
                                 Text(
-                                  'جاري المعالجة...',
-                                  style: TextStyle(
+                                  message,
+                                  style: const TextStyle(
                                     color: Colors.white,
-                                    fontSize: 16,
+                                    fontSize: 18,
                                     fontWeight: FontWeight.w600,
                                     fontFamily: 'Cairo',
                                   ),
@@ -401,6 +423,11 @@ class BeepayApp extends StatelessWidget {
           ),
         ),
 
+        navigatorObservers: [
+          BeepayNavigatorObserver(
+            Provider.of<LoadingProvider>(context, listen: false),
+          ),
+        ],
         home: const SplashScreen(),
 
         routes: {
