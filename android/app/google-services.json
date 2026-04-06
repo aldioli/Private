@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "350980899817",
+    "project_id": "beepay-621ac",
+    "storage_bucket": "beepay-621ac.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:350980899817:android:aeff61a2928b2822e74178",
+        "android_client_info": {
+          "package_name": "com.hussain.beepay"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAnJDDxal3U43ekPubQXZvunwdeMDvI6ro"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

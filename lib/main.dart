@@ -1,4 +1,6 @@
-﻿import 'package:flutter/material.dart';
+﻿import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
@@ -76,8 +78,17 @@ import 'models/transaction.dart';
 import 'utils/constants.dart';
 import 'widgets/beepay_loading.dart';
 
+// معالج الإشعارات في الخلفية
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   await Supabase.initialize(
     url: 'https://wiqldyzkqsehfcwhakws.supabase.co',
@@ -157,7 +168,6 @@ class BeepayApp extends StatelessWidget {
             child: Consumer3<AuthProvider, WalletProvider, LoadingProvider>(
               builder: (context, auth, wallet, loading, _) {
                 final isLoading = auth.isLoading || wallet.isLoading || loading.isLoading;
-                final message = loading.isLoading ? loading.message : 'جاري المعالجة...';
                 return Stack(
                   children: [
                     child!,
@@ -165,23 +175,8 @@ class BeepayApp extends StatelessWidget {
                       Positioned.fill(
                         child: Container(
                           color: Colors.black.withValues(alpha: 0.45),
-                          child: Center(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const BeepayLoading(size: 160, color: Color(0xFFFFD600)),
-                                const SizedBox(height: 20),
-                                Text(
-                                  message,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                    fontFamily: 'Cairo',
-                                  ),
-                                ),
-                              ],
-                            ),
+                          child: const Center(
+                            child: BeepayLoading(size: 160, color: Color(0xFFFFD600)),
                           ),
                         ),
                       ),
@@ -219,7 +214,7 @@ class BeepayApp extends StatelessWidget {
             ),
           ),
 
-          cardTheme: CardTheme(
+          cardTheme: CardThemeData(
             elevation: 2,
             color: AppColors.white,
             shadowColor: Colors.black12,
@@ -311,7 +306,7 @@ class BeepayApp extends StatelessWidget {
             contentTextStyle: const TextStyle(fontFamily: 'Cairo'),
           ),
 
-          dialogTheme: DialogTheme(
+          dialogTheme: DialogThemeData(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppSizes.borderRadiusLarge),
             ),
@@ -345,7 +340,7 @@ class BeepayApp extends StatelessWidget {
               fontFamily: 'Cairo',
             ),
           ),
-          cardTheme: CardTheme(
+          cardTheme: CardThemeData(
             color: const Color(0xFF1E1E30),
             elevation: 0,
             shape: RoundedRectangleBorder(
@@ -401,7 +396,7 @@ class BeepayApp extends StatelessWidget {
             contentTextStyle:
                 const TextStyle(fontFamily: 'Cairo', color: Colors.white),
           ),
-          dialogTheme: DialogTheme(
+          dialogTheme: DialogThemeData(
             backgroundColor: const Color(0xFF1E1E30),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppSizes.borderRadiusLarge),
@@ -543,6 +538,7 @@ class _SplashScreenState extends State<SplashScreen>
   late Animation<double> _pulseAnim;
 
   bool _showPulse = false;
+  String _loadingMessage = 'جاري التحميل...';
 
   @override
   void initState() {
@@ -606,10 +602,10 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _checkAuthAndNavigate() async {
-    await Future.delayed(const Duration(milliseconds: 3200));
+    // انتظر الأنيميشن الأولي
+    await Future.delayed(const Duration(milliseconds: 4000));
     if (!mounted) return;
 
-    // تحقق من الـ Onboarding أولاً
     final prefs = await SharedPreferences.getInstance();
     final onboardingDone = prefs.getBool('onboarding_done') ?? false;
     if (!onboardingDone) {
@@ -623,12 +619,11 @@ class _SplashScreenState extends State<SplashScreen>
     if (!mounted) return;
 
     if (authProvider.isAuthenticated) {
+      _setMessage('جاري التحميل...');
       // ignore: use_build_context_synchronously
-      final walletProvider =
-          Provider.of<WalletProvider>(context, listen: false);
+      final walletProvider = Provider.of<WalletProvider>(context, listen: false);
       // ignore: use_build_context_synchronously
-      final notifProvider =
-          Provider.of<NotificationsProvider>(context, listen: false);
+      final notifProvider = Provider.of<NotificationsProvider>(context, listen: false);
       await Future.wait([
         walletProvider.loadWallet(),
         notifProvider.loadNotifications(),
@@ -639,6 +634,10 @@ class _SplashScreenState extends State<SplashScreen>
     } else {
       Navigator.pushReplacementNamed(context, '/login');
     }
+  }
+
+  void _setMessage(String msg) {
+    if (mounted) setState(() => _loadingMessage = msg);
   }
 
   @override
@@ -773,21 +772,7 @@ class _SplashScreenState extends State<SplashScreen>
 
                       const SizedBox(height: 70),
 
-                      // أنيميشن النحلة
-                      Column(
-                        children: [
-                          const BeepayLoading(size: 60, color: Colors.white),
-                          const SizedBox(height: 14),
-                          Text(
-                            'جاري التحميل...',
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.6),
-                              fontFamily: 'Cairo',
-                              fontSize: 13,
-                            ),
-                          ),
-                        ],
-                      ),
+                      const BeepayLoading(size: 60, color: Colors.white),
                     ],
                   ),
                 );

@@ -7,6 +7,7 @@ import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/logo_widget.dart';
 import '../services/api_service.dart';
+import '../services/notification_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -313,6 +314,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (success && mounted) {
+        await NotificationService.initialize();
         Navigator.pushReplacementNamed(context, '/home');
       }
     }

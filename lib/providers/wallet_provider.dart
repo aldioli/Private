@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/wallet.dart';
 import '../models/transaction.dart';
+import '../services/notification_service.dart';
 
 class WalletProvider with ChangeNotifier {
   final _supabase = Supabase.instance.client;
@@ -141,6 +142,28 @@ class WalletProvider with ChangeNotifier {
         'p_note': description ?? '',
       });
 
+      // جلب ID المستلم لإرسال الإشعار
+      try {
+        final receiver = await _supabase
+            .from('profiles')
+            .select('id, full_name')
+            .eq('phone', receiverPhone)
+            .single();
+
+        final senderProfile = await _supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', _supabase.auth.currentUser!.id)
+            .single();
+        final senderName = senderProfile['full_name'] ?? 'مستخدم';
+        await NotificationService.sendNotification(
+          toUserId: receiver['id'],
+          title: 'تحويل مالي جديد 💰',
+          body: 'استلمت ${amount.toStringAsFixed(0)} ر.ي من $senderName',
+          data: {'type': 'transfer_received'},
+        );
+      } catch (_) {}
+
       // تحديث الرصيد والمعاملات
       await refreshBalance();
       await loadTransactions(refresh: true);
@@ -191,6 +214,14 @@ class WalletProvider with ChangeNotifier {
         'status': 'pending',
         'note': ref,
       });
+
+      // إشعار السحب
+      await NotificationService.sendNotification(
+        toUserId: userId,
+        title: 'طلب سحب 💸',
+        body: 'تم تسجيل طلب سحب ${amount.toStringAsFixed(0)} ر.ي بنجاح',
+        data: {'type': 'withdraw'},
+      );
 
       _isLoading = false;
       notifyListeners();
@@ -249,6 +280,18 @@ class WalletProvider with ChangeNotifier {
 
     try {
       await Future.delayed(const Duration(milliseconds: 1000));
+
+      // إشعار دفع الفاتورة
+      final userId = _userId;
+      if (userId != null) {
+        await NotificationService.sendNotification(
+          toUserId: userId,
+          title: 'دفع فاتورة ✅',
+          body: 'تم دفع فاتورة $billType بمبلغ ${amount.toStringAsFixed(0)} ر.ي',
+          data: {'type': 'bill_paid'},
+        );
+      }
+
       _isLoading = false;
       notifyListeners();
       return true;
