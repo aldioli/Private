@@ -322,17 +322,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _handleDemoLogin() async {
     ApiService.enableDemoMode();
-
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final walletProvider =
-        Provider.of<WalletProvider>(context, listen: false);
-
-    final success = await authProvider.login('+967777123456', '123456');
-    if (success && mounted) {
-      await walletProvider.loadWallet();
-      await walletProvider.loadTransactions(refresh: true);
-      if (!mounted) return;
-      // ignore: use_build_context_synchronously
+    authProvider.loginAsGuest();
+    if (mounted) {
       Navigator.pushReplacementNamed(context, '/home');
     }
   }

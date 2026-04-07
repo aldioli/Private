@@ -30,8 +30,9 @@ class WalletProvider with ChangeNotifier {
         balance: 150500,
         lastUpdate: DateTime.now(),
       );
+      notifyListeners(); // أظهر الرصيد فوراً
       _transactions = await ApiService.getTransactions();
-      notifyListeners();
+      notifyListeners(); // ثم حدّث المعاملات
       return;
     }
 
