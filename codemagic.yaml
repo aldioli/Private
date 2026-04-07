@@ -31,6 +31,13 @@ workflows:
           flutter build ios --debug --simulator
       - name: Package for Appetize
         script: |
-          zip -r Beepay.zip build/ios/iphonesimulator/Runner.app
+          echo "=== Listing build/ios ==="
+          ls -la build/ios/ || echo "No build/ios directory"
+          ls -la build/ios/iphonesimulator/ || echo "No iphonesimulator directory"
+          ls -la build/ios/Debug-iphonesimulator/ || echo "No Debug-iphonesimulator directory"
+          find build/ios -name "*.app" 2>/dev/null || echo "No .app found"
+          zip -r Beepay.zip build/ios/iphonesimulator/Runner.app || \
+          zip -r Beepay.zip build/ios/Debug-iphonesimulator/Runner.app || \
+          echo "Zip failed"
     artifacts:
       - Beepay.zip
