@@ -124,6 +124,12 @@ class AuthProvider with ChangeNotifier {
         );
 
         if (loginResponse.user != null) {
+          // حفظ national_id في profiles
+          await _supabase
+              .from('profiles')
+              .update({'national_id': nationalId})
+              .eq('id', loginResponse.user!.id);
+
           await Future.delayed(const Duration(milliseconds: 500));
           await loadUserData();
           if (_user == null) {
@@ -131,6 +137,7 @@ class AuthProvider with ChangeNotifier {
               id: loginResponse.user!.id,
               fullName: fullName,
               phoneNumber: phoneNumber,
+              nationalId: nationalId,
               balance: 0,
             );
           }
@@ -151,7 +158,13 @@ class AuthProvider with ChangeNotifier {
       }
 
     } catch (e) {
-      _errorMessage = 'حدث خطأ، يرجى المحاولة مجدداً';
+      final errStr = e.toString();
+      if (errStr.contains('profiles_national_id_unique') ||
+          errStr.contains('23505')) {
+        _errorMessage = 'رقم الهوية مسجل مسبقاً بحساب آخر';
+      } else {
+        _errorMessage = 'حدث خطأ، يرجى المحاولة مجدداً';
+      }
     }
 
     _isLoading = false;

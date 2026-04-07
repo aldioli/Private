@@ -110,8 +110,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               if (value == null || value.isEmpty) {
                                 return 'يرجى إدخال رقم الهوية';
                               }
-                              if (value.length < 6) {
-                                return 'رقم الهوية غير صحيح';
+                              if (!RegExp(r'^\d{9}$').hasMatch(value)) {
+                                return 'رقم الهوية يجب أن يكون 9 أرقام';
                               }
                               return null;
                             },
