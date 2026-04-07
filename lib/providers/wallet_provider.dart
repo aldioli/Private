@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/wallet.dart';
 import '../models/transaction.dart';
 import '../services/notification_service.dart';
+import '../services/api_service.dart';
 
 class WalletProvider with ChangeNotifier {
   final _supabase = Supabase.instance.client;
@@ -22,6 +23,18 @@ class WalletProvider with ChangeNotifier {
 
   // تحميل بيانات المحفظة (الرصيد) من Supabase
   Future<void> loadWallet() async {
+    // وضع الضيف
+    if (ApiService.isDemoMode) {
+      _wallet = Wallet(
+        walletNumber: '120000000001',
+        balance: 150500,
+        lastUpdate: DateTime.now(),
+      );
+      _transactions = await ApiService.getTransactions();
+      notifyListeners();
+      return;
+    }
+
     final userId = _userId;
     if (userId == null) return;
 

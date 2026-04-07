@@ -11,6 +11,7 @@ class AuthProvider with ChangeNotifier {
   app_user.User? _user;
   bool _isAuthenticated = false;
   bool _isLoading = false;
+  bool _isGuest = false;
   String? _errorMessage;
 
   final _supabase = Supabase.instance.client;
@@ -18,6 +19,7 @@ class AuthProvider with ChangeNotifier {
   app_user.User? get user => _user;
   bool get isAuthenticated => _isAuthenticated;
   bool get isLoading => _isLoading;
+  bool get isGuest => _isGuest;
   String? get errorMessage => _errorMessage;
 
   Future<void> loadUserData() async {
@@ -172,6 +174,20 @@ class AuthProvider with ChangeNotifier {
     return false;
   }
 
+  void loginAsGuest() {
+    _user = app_user.User(
+      id: 'guest_001',
+      fullName: 'أحمد علي الحمدي',
+      phoneNumber: '+967777123456',
+      walletNumber: '120000000001',
+      balance: 150500,
+      isVerified: true,
+    );
+    _isAuthenticated = true;
+    _isGuest = true;
+    notifyListeners();
+  }
+
   Future<void> logout() async {
     _isLoading = true;
     notifyListeners();
@@ -180,6 +196,7 @@ class AuthProvider with ChangeNotifier {
       await _supabase.auth.signOut();
       _user = null;
       _isAuthenticated = false;
+      _isGuest = false;
     } catch (e) {
       // ignore
     }

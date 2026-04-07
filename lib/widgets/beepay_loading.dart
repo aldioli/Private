@@ -18,29 +18,45 @@ class BeepayLoading extends StatefulWidget {
 class _BeepayLoadingState extends State<BeepayLoading>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _wingAnimation;
-  late Animation<double> _bodyAnimation;
+
+  // مرحلة الرسم: 0.0 → 0.7 (رسم كامل للنحلة)
+  late Animation<double> _drawProgress;
+
+  // مرحلة الدوران: 0.7 → 1.0 (دوران النحلة المكتملة)
+  late Animation<double> _rotation;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 2000),
     )..repeat();
 
-    _wingAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.0, 0.7, curve: Curves.easeInOut),
+    // رسم النحلة من البداية حتى الاكتمال
+    _drawProgress = TweenSequence([
+      // رسم تدريجي 0→1
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 0.0, end: 1.0)
+            .chain(CurveTween(curve: Curves.easeInOut)),
+        weight: 55,
       ),
-    );
+      // توقف قصير عند الاكتمال
+      TweenSequenceItem(
+        tween: ConstantTween<double>(1.0),
+        weight: 15,
+      ),
+      // إخفاء تدريجي
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.0, end: 0.0)
+            .chain(CurveTween(curve: Curves.easeIn)),
+        weight: 30,
+      ),
+    ]).animate(_controller);
 
-    _bodyAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.3, 1.0, curve: Curves.easeInOut),
-      ),
+    // دوران مستمر
+    _rotation = Tween<double>(begin: 0.0, end: 2 * math.pi).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.linear),
     );
   }
 
@@ -55,12 +71,14 @@ class _BeepayLoadingState extends State<BeepayLoading>
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        return CustomPaint(
-          size: Size(widget.size, widget.size),
-          painter: _BeePainter(
-            wingProgress: _wingAnimation.value,
-            bodyProgress: _bodyAnimation.value,
-            color: widget.color,
+        return Transform.rotate(
+          angle: _rotation.value,
+          child: CustomPaint(
+            size: Size(widget.size, widget.size),
+            painter: _BeePainter(
+              progress: _drawProgress.value,
+              color: widget.color,
+            ),
           ),
         );
       },
@@ -69,18 +87,15 @@ class _BeepayLoadingState extends State<BeepayLoading>
 }
 
 class _BeePainter extends CustomPainter {
-  final double wingProgress;
-  final double bodyProgress;
+  final double progress;
   final Color color;
 
-  _BeePainter({
-    required this.wingProgress,
-    required this.bodyProgress,
-    required this.color,
-  });
+  _BeePainter({required this.progress, required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {
+    if (progress <= 0) return;
+
     final paint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
@@ -91,17 +106,16 @@ class _BeePainter extends CustomPainter {
     final cx = size.width / 2;
     final cy = size.height / 2;
 
-    // رسم الجناح الأيسر
-    _drawPathWithProgress(canvas, paint, _leftWingPath(cx, cy, size), wingProgress);
+    // تقسيم progress على المكونات الأربعة
+    final p1 = (progress * 4).clamp(0.0, 1.0);        // جناح أيسر
+    final p2 = ((progress - 0.25) * 4).clamp(0.0, 1.0); // جناح أيمن
+    final p3 = ((progress - 0.5) * 4).clamp(0.0, 1.0);  // الجسم
+    final p4 = ((progress - 0.75) * 4).clamp(0.0, 1.0); // الهوائيات
 
-    // رسم الجناح الأيمن
-    _drawPathWithProgress(canvas, paint, _rightWingPath(cx, cy, size), wingProgress);
-
-    // رسم جسم النحلة (قطرة)
-    _drawPathWithProgress(canvas, paint, _bodyPath(cx, cy, size), bodyProgress);
-
-    // رسم الهوائيات
-    _drawPathWithProgress(canvas, paint, _antennaPath(cx, cy, size), wingProgress);
+    _drawPathWithProgress(canvas, paint, _leftWingPath(cx, cy, size), p1);
+    _drawPathWithProgress(canvas, paint, _rightWingPath(cx, cy, size), p2);
+    _drawPathWithProgress(canvas, paint, _bodyPath(cx, cy, size), p3);
+    _drawPathWithProgress(canvas, paint, _antennaPath(cx, cy, size), p4);
   }
 
   Path _leftWingPath(double cx, double cy, Size size) {
@@ -141,7 +155,6 @@ class _BeePainter extends CustomPainter {
   Path _bodyPath(double cx, double cy, Size size) {
     final path = Path();
     final h = size.height;
-    // الجسم على شكل قطرة / مثلث مدور
     path.moveTo(cx, cy * 0.7);
     path.cubicTo(
       cx - size.width * 0.18, cy * 0.9,
@@ -159,13 +172,11 @@ class _BeePainter extends CustomPainter {
   Path _antennaPath(double cx, double cy, Size size) {
     final path = Path();
     final h = size.height;
-    // هوائي أيسر
     path.moveTo(cx - size.width * 0.04, cy * 0.65);
     path.quadraticBezierTo(
       cx - size.width * 0.15, h * 0.12,
       cx - size.width * 0.12, h * 0.06,
     );
-    // هوائي أيمن
     path.moveTo(cx + size.width * 0.04, cy * 0.65);
     path.quadraticBezierTo(
       cx + size.width * 0.15, h * 0.12,
@@ -180,7 +191,6 @@ class _BeePainter extends CustomPainter {
       canvas.drawPath(path, paint);
       return;
     }
-
     final metrics = path.computeMetrics();
     for (final metric in metrics) {
       final extractPath = metric.extractPath(0, metric.length * progress);
@@ -190,11 +200,9 @@ class _BeePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_BeePainter oldDelegate) =>
-      oldDelegate.wingProgress != wingProgress ||
-      oldDelegate.bodyProgress != bodyProgress;
+      oldDelegate.progress != progress;
 }
 
-// Widget جاهز للاستخدام في شاشة التحميل
 class BeepayLoadingScreen extends StatelessWidget {
   final String message;
 
