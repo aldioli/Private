@@ -4,7 +4,7 @@ workflows:
     max_build_duration: 60
     instance_type: mac_mini_m2
     environment:
-      flutter: 3.27.4
+      flutter: 3.41.6
     scripts:
       - name: Get dependencies
         script: flutter pub get
@@ -16,11 +16,11 @@ workflows:
       - build/app/outputs/flutter-apk/app-release.apk
 
   ios-workflow:
-    name: iOS Build
+    name: iOS Build (Appetize)
     max_build_duration: 60
     instance_type: mac_mini_m2
     environment:
-      flutter: 3.27.4
+      flutter: 3.41.6
     scripts:
       - name: Get dependencies
         script: flutter pub get
@@ -29,5 +29,11 @@ workflows:
       - name: Build iOS (no codesign)
         script: |
           flutter build ios --debug --no-codesign
+      - name: Package as IPA for Appetize
+        script: |
+          mkdir -p build/ios/ipa/Payload
+          cp -r build/ios/iphoneos/Runner.app build/ios/ipa/Payload/Runner.app
+          cd build/ios/ipa
+          zip -r ../Beepay.ipa Payload
     artifacts:
-      - build/ios/iphoneos/Runner.app
+      - build/ios/Beepay.ipa
