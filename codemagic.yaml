@@ -31,7 +31,8 @@ workflows:
           flutter build ios --debug --simulator
       - name: Package for Appetize
         script: |
+          mkdir -p $CM_BUILD_DIR/artifacts
           cd build/ios/iphonesimulator
-          zip -r Beepay.zip Runner.app
+          zip -r $CM_BUILD_DIR/artifacts/Beepay.zip Runner.app
     artifacts:
-      - build/ios/iphonesimulator/Beepay.zip
+      - $CM_BUILD_DIR/artifacts/Beepay.zip
