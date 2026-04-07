@@ -89,6 +89,13 @@ class WalletProvider with ChangeNotifier {
 
   // تحميل المعاملات من Supabase
   Future<void> loadTransactions({bool refresh = false}) async {
+    // وضع الضيف
+    if (ApiService.isDemoMode) {
+      _transactions = await ApiService.getTransactions();
+      notifyListeners();
+      return;
+    }
+
     final userId = _userId;
     if (userId == null) return;
     if (!refresh && _transactions.isNotEmpty) return;

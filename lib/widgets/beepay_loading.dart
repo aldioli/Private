@@ -19,45 +19,35 @@ class _BeepayLoadingState extends State<BeepayLoading>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
-  // مرحلة الرسم: 0.0 → 0.7 (رسم كامل للنحلة)
   late Animation<double> _drawProgress;
-
-  // مرحلة الدوران: 0.7 → 1.0 (دوران النحلة المكتملة)
-  late Animation<double> _rotation;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2000),
+      duration: const Duration(milliseconds: 2200),
     )..repeat();
 
-    // رسم النحلة من البداية حتى الاكتمال
     _drawProgress = TweenSequence([
-      // رسم تدريجي 0→1
+      // رسم تدريجي من الصفر إلى الاكتمال
       TweenSequenceItem(
         tween: Tween<double>(begin: 0.0, end: 1.0)
             .chain(CurveTween(curve: Curves.easeInOut)),
-        weight: 55,
+        weight: 60,
       ),
-      // توقف قصير عند الاكتمال
+      // توقف عند الاكتمال
       TweenSequenceItem(
         tween: ConstantTween<double>(1.0),
-        weight: 15,
+        weight: 20,
       ),
-      // إخفاء تدريجي
+      // محو تدريجي للبداية من جديد
       TweenSequenceItem(
         tween: Tween<double>(begin: 1.0, end: 0.0)
             .chain(CurveTween(curve: Curves.easeIn)),
-        weight: 30,
+        weight: 20,
       ),
     ]).animate(_controller);
-
-    // دوران مستمر
-    _rotation = Tween<double>(begin: 0.0, end: 2 * math.pi).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.linear),
-    );
   }
 
   @override
@@ -71,16 +61,13 @@ class _BeepayLoadingState extends State<BeepayLoading>
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        return Transform.rotate(
-          angle: _rotation.value,
-          child: CustomPaint(
+        return CustomPaint(
             size: Size(widget.size, widget.size),
             painter: _BeePainter(
               progress: _drawProgress.value,
               color: widget.color,
             ),
-          ),
-        );
+          );
       },
     );
   }
