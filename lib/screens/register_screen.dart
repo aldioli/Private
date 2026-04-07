@@ -16,6 +16,7 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final _fullNameController = TextEditingController();
   final _phoneController = TextEditingController();
+  final _nationalIdController = TextEditingController();
   final _pinController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _obscurePin = true;
@@ -25,6 +26,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void dispose() {
     _fullNameController.dispose();
     _phoneController.dispose();
+    _nationalIdController.dispose();
     _pinController.dispose();
     super.dispose();
   }
@@ -96,6 +98,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: AppSizes.paddingM),
                         
+                        // رقم الهوية
+                        Directionality(
+                          textDirection: TextDirection.ltr,
+                          child: CustomTextField(
+                            controller: _nationalIdController,
+                            labelText: 'رقم الهوية الوطنية',
+                            keyboardType: TextInputType.number,
+                            prefixIcon: Icons.badge,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'يرجى إدخال رقم الهوية';
+                              }
+                              if (value.length < 6) {
+                                return 'رقم الهوية غير صحيح';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: AppSizes.paddingM),
+
                         // رقم الهاتف
                         Directionality(
                           textDirection: TextDirection.ltr,
@@ -295,6 +318,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final success = await authProvider.register(
         fullName: _fullNameController.text,
         phoneNumber: '+967${_phoneController.text}',
+        nationalId: _nationalIdController.text,
         pin: _pinController.text,
       );
       

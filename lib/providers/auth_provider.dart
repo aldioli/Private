@@ -86,6 +86,7 @@ class AuthProvider with ChangeNotifier {
   Future<bool> register({
     required String fullName,
     required String phoneNumber,
+    required String nationalId,
     required String pin,
   }) async {
     _isLoading = true;
@@ -110,6 +111,7 @@ class AuthProvider with ChangeNotifier {
           'user_metadata': {
             'full_name': fullName,
             'phone': phoneNumber,
+            'national_id': nationalId,
           },
         }),
       );

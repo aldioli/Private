@@ -2,6 +2,7 @@ class User {
   final String id;
   final String fullName;
   final String phoneNumber;
+  final String nationalId;
   final String walletNumber;
   final String email;
   final bool isVerified;
@@ -13,6 +14,7 @@ class User {
     required this.id,
     required this.fullName,
     required this.phoneNumber,
+    this.nationalId = '',
     this.walletNumber = '',
     this.email = '',
     this.isVerified = false,
@@ -30,6 +32,7 @@ class User {
       id: json['id'] ?? '',
       fullName: json['full_name'] ?? '',
       phoneNumber: phone,
+      nationalId: json['national_id'] ?? '',
       walletNumber: derivedWallet,
       email: json['email'] ?? '',
       isVerified: json['kyc_status'] == 'verified',
@@ -46,6 +49,7 @@ class User {
       'id': id,
       'full_name': fullName,
       'phone': phoneNumber,
+      'national_id': nationalId,
       'wallet_number': walletNumber,
       'balance': balance,
       'kyc_status': kycStatus,
@@ -56,6 +60,7 @@ class User {
     String? id,
     String? fullName,
     String? phoneNumber,
+    String? nationalId,
     String? walletNumber,
     String? email,
     bool? isVerified,
@@ -67,6 +72,7 @@ class User {
       id: id ?? this.id,
       fullName: fullName ?? this.fullName,
       phoneNumber: phoneNumber ?? this.phoneNumber,
+      nationalId: nationalId ?? this.nationalId,
       walletNumber: walletNumber ?? this.walletNumber,
       email: email ?? this.email,
       isVerified: isVerified ?? this.isVerified,
