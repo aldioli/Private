@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import '../utils/constants.dart';
+import 'beepay_loading.dart';
 import '../screens/bills_screen.dart';
 import '../screens/offers_screen.dart';
 import '../screens/exchange_screen.dart';
@@ -394,7 +395,10 @@ class _ServiceButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onTap,
+      onTap: () => BeepayTransitionOverlay.navigate(
+        context: context,
+        onNavigate: onTap,
+      ),
       borderRadius: BorderRadius.circular(AppSizes.borderRadius),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),

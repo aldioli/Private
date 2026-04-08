@@ -112,6 +112,28 @@ class BeepayTransitionOverlay extends StatefulWidget {
     );
   }
 
+  /// للتنقل بين الشاشات — يرسم النحلة كاملاً ثم ينتقل
+  static void navigate({
+    required BuildContext context,
+    required VoidCallback onNavigate,
+  }) {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        opaque: true,
+        transitionDuration: const Duration(milliseconds: 200),
+        reverseTransitionDuration: Duration.zero,
+        pageBuilder: (ctx, _, __) => _BeepayNavOverlay(
+          onComplete: () {
+            Navigator.of(ctx).pop();
+            onNavigate();
+          },
+        ),
+        transitionsBuilder: (_, anim, __, child) =>
+            FadeTransition(opacity: anim, child: child),
+      ),
+    );
+  }
+
   /// للتنقلات (تحويل، فواتير...) — نحلة ذهبية متوهجة بدون خلفية
   static Future<void> showNav({
     required BuildContext context,
@@ -588,6 +610,61 @@ class BeePainter extends CustomPainter {
       oldDelegate.progress != progress ||
       oldDelegate.filled != filled ||
       oldDelegate.glowing != glowing;
+}
+
+// ─────────────────────────────────────────────
+// _BeepayNavOverlay — رسم النحلة للتنقل بين الشاشات
+// ─────────────────────────────────────────────
+class _BeepayNavOverlay extends StatefulWidget {
+  final VoidCallback onComplete;
+  const _BeepayNavOverlay({required this.onComplete});
+
+  @override
+  State<_BeepayNavOverlay> createState() => _BeepayNavOverlayState();
+}
+
+class _BeepayNavOverlayState extends State<_BeepayNavOverlay>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1600),
+    )..forward().whenComplete(() {
+        if (mounted) widget.onComplete();
+      });
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: const Color(0xFF0D47A1),
+      child: Center(
+        child: AnimatedBuilder(
+          animation: _ctrl,
+          builder: (_, __) => CustomPaint(
+            size: const Size(160, 160),
+            painter: BeePainter(
+              progress: _ctrl.value,
+              color: const Color(0xFFFFD600),
+              strokeWidth: 7.0,
+              filled: _ctrl.value >= 1.0,
+              glowing: false,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 // ─────────────────────────────────────────────
