@@ -6,6 +6,7 @@ import '../utils/constants.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/logo_widget.dart';
+import '../widgets/beepay_loading.dart';
 import '../services/api_service.dart';
 import '../services/notification_service.dart';
 
@@ -308,24 +309,30 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_formKey.currentState!.validate()) {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-      final success = await authProvider.login(
-        '+967${_phoneController.text}',
-        _pinController.text,
+      bool success = false;
+      await BeepayTransitionOverlay.show(
+        context: context,
+        operation: () async {
+          success = await authProvider.login(
+            '+967${_phoneController.text}',
+            _pinController.text,
+          );
+          if (success) await NotificationService.initialize();
+        },
+        onDone: () {
+          if (success) Navigator.pushReplacementNamed(context, '/home');
+        },
       );
-
-      if (success && mounted) {
-        await NotificationService.initialize();
-        Navigator.pushReplacementNamed(context, '/home');
-      }
     }
   }
 
   Future<void> _handleDemoLogin() async {
     ApiService.enableDemoMode();
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    authProvider.loginAsGuest();
-    if (mounted) {
-      Navigator.pushReplacementNamed(context, '/home');
-    }
+    await BeepayTransitionOverlay.show(
+      context: context,
+      operation: () async => authProvider.loginAsGuest(),
+      onDone: () => Navigator.pushReplacementNamed(context, '/home'),
+    );
   }
 }

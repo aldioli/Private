@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/wallet_provider.dart';
 import '../utils/constants.dart';
 import '../widgets/custom_button.dart';
+import '../widgets/beepay_loading.dart';
 
 class BillsScreen extends StatefulWidget {
   const BillsScreen({super.key});
@@ -707,30 +708,37 @@ class _BillPaymentFormState extends State<_BillPaymentForm> {
 
     if (confirm != true || !mounted) return;
 
-    final success = await walletProvider.payBill(
-      billType: widget.category.id,
-      accountNumber: _accountController.text,
-      amount: amount,
-      pin: _pinController.text,
-      description:
-          'فاتورة ${widget.category.name} - ${_selectedProvider ?? ''}',
+    bool success = false;
+
+    await BeepayTransitionOverlay.showNav(
+      context: context,
+      operation: () async {
+        success = await walletProvider.payBill(
+          billType: widget.category.id,
+          accountNumber: _accountController.text,
+          amount: amount,
+          pin: _pinController.text,
+          description:
+              'فاتورة ${widget.category.name} - ${_selectedProvider ?? ''}',
+        );
+      },
+      onDone: () {
+        if (!mounted) return;
+        if (success) {
+          _showSuccessDialog(amount);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                walletProvider.errorMessage ?? 'فشل الدفع',
+                style: const TextStyle(fontFamily: 'Cairo'),
+              ),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      },
     );
-
-    if (!mounted) return;
-
-    if (success) {
-      _showSuccessDialog(amount);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            walletProvider.errorMessage ?? 'فشل الدفع',
-            style: const TextStyle(fontFamily: 'Cairo'),
-          ),
-          backgroundColor: AppColors.error,
-        ),
-      );
-    }
   }
 
   void _showSuccessDialog(double amount) {

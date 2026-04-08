@@ -5,6 +5,7 @@ import '../utils/constants.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/logo_widget.dart';
+import '../widgets/beepay_loading.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -312,19 +313,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
         return;
       }
-      
+
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      
-      final success = await authProvider.register(
-        fullName: _fullNameController.text,
-        phoneNumber: '+967${_phoneController.text}',
-        nationalId: _nationalIdController.text,
-        pin: _pinController.text,
+
+      bool success = false;
+      await BeepayTransitionOverlay.show(
+        context: context,
+        operation: () async {
+          success = await authProvider.register(
+            fullName: _fullNameController.text,
+            phoneNumber: '+967${_phoneController.text}',
+            nationalId: _nationalIdController.text,
+            pin: _pinController.text,
+          );
+        },
+        onDone: () {
+          if (success) Navigator.pushReplacementNamed(context, '/home');
+        },
       );
-      
-      if (success && mounted) {
-        Navigator.pushReplacementNamed(context, '/home');
-      }
     }
   }
 }
