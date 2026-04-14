@@ -1,5 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 import '../utils/constants.dart';
 
 class CurrencyConverterScreen extends StatefulWidget {
@@ -14,44 +16,111 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
   final _toCtrl = TextEditingController();
   String _fromCurrency = 'YER';
   String _toCurrency = 'USD';
+  bool _isLoading = true;
+  bool _hasError = false;
+  DateTime? _lastUpdated;
 
-  static const _currencies = {
-    'YER': _Currency('ريال يمني', '🇾🇪', 1.0),
-    'USD': _Currency('دولار أمريكي', '🇺🇸', 1650.0),
-    'SAR': _Currency('ريال سعودي', '🇸🇦', 440.0),
-    'EUR': _Currency('يورو', '🇪🇺', 1810.0),
-    'GBP': _Currency('جنيه إسترليني', '🇬🇧', 2090.0),
-    'KWD': _Currency('دينار كويتي', '🇰🇼', 5400.0),
-    'AED': _Currency('درهم إماراتي', '🇦🇪', 449.0),
-    'TRY': _Currency('ليرة تركية', '🇹🇷', 51.0),
-    'EGP': _Currency('جنيه مصري', '🇪🇬', 33.0),
+  static const _currencyMeta = {
+    'YER': _CurrencyMeta('ريال يمني', '🇾🇪'),
+    'USD': _CurrencyMeta('دولار أمريكي', '🇺🇸'),
+    'SAR': _CurrencyMeta('ريال سعودي', '🇸🇦'),
+    'EUR': _CurrencyMeta('يورو', '🇪🇺'),
+    'GBP': _CurrencyMeta('جنيه إسترليني', '🇬🇧'),
+    'KWD': _CurrencyMeta('دينار كويتي', '🇰🇼'),
+    'AED': _CurrencyMeta('درهم إماراتي', '🇦🇪'),
+    'TRY': _CurrencyMeta('ليرة تركية', '🇹🇷'),
+    'EGP': _CurrencyMeta('جنيه مصري', '🇪🇬'),
   };
 
+  // Fallback static rates (YER base)
+  static const _fallbackRates = {
+    'YER': 1.0,
+    'USD': 1 / 1650.0,
+    'SAR': 1 / 440.0,
+    'EUR': 1 / 1810.0,
+    'GBP': 1 / 2090.0,
+    'KWD': 1 / 5400.0,
+    'AED': 1 / 449.0,
+    'TRY': 1 / 51.0,
+    'EGP': 1 / 33.0,
+  };
+
+  Map<String, double> _rates = Map.from(_fallbackRates);
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchRates();
+  }
+
+  Future<void> _fetchRates() async {
+    setState(() { _isLoading = true; _hasError = false; });
+    try {
+      final symbols = _currencyMeta.keys.where((k) => k != 'YER').join(',');
+      // Frankfurter doesn't support YER, so we fetch USD base then convert
+      final res = await http.get(
+        Uri.parse('https://api.frankfurter.app/latest?from=USD&to=$symbols,YER'),
+      ).timeout(const Duration(seconds: 8));
+
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        final Map<String, dynamic> rawRates = data['rates'];
+
+        // Get YER per USD
+        final double yerPerUsd = (rawRates['YER'] ?? 1650.0).toDouble();
+
+        // Build rates relative to YER
+        final Map<String, double> newRates = {'YER': 1.0};
+        for (final entry in rawRates.entries) {
+          if (entry.key == 'YER') continue;
+          final double ratePerUsd = (entry.value as num).toDouble();
+          // 1 YER = (1/yerPerUsd) USD = (ratePerUsd/yerPerUsd) of target
+          newRates[entry.key] = ratePerUsd / yerPerUsd;
+        }
+        newRates['USD'] = 1.0 / yerPerUsd;
+
+        setState(() {
+          _rates = newRates;
+          _lastUpdated = DateTime.now();
+          _isLoading = false;
+        });
+      } else {
+        throw Exception('Bad status');
+      }
+    } catch (_) {
+      setState(() {
+        _rates = Map.from(_fallbackRates);
+        _hasError = true;
+        _isLoading = false;
+      });
+    }
+  }
+
   double _convert(double amount, String from, String to) {
-    final fromRate = _currencies[from]!.rateToYER;
-    final toRate = _currencies[to]!.rateToYER;
-    // Convert to YER first, then to target
-    if (from == 'YER') return amount / toRate;
-    if (to == 'YER') return amount * fromRate;
-    return (amount * fromRate) / toRate;
+    final fromRate = _rates[from] ?? _fallbackRates[from]!;
+    final toRate = _rates[to] ?? _fallbackRates[to]!;
+    // Convert to YER then to target
+    if (from == 'YER') return amount * toRate;
+    if (to == 'YER') return amount / fromRate;
+    return amount * (toRate / fromRate);
+  }
+
+  double _rateToYER(String currency) {
+    final rate = _rates[currency] ?? _fallbackRates[currency]!;
+    if (rate == 0) return 0;
+    return 1.0 / rate;
   }
 
   void _onFromChanged(String val) {
     final amount = double.tryParse(val) ?? 0;
-    if (amount == 0) {
-      _toCtrl.clear();
-      return;
-    }
+    if (amount == 0) { _toCtrl.clear(); return; }
     final result = _convert(amount, _fromCurrency, _toCurrency);
     _toCtrl.text = result.toStringAsFixed(result < 1 ? 4 : 2);
   }
 
   void _onToChanged(String val) {
     final amount = double.tryParse(val) ?? 0;
-    if (amount == 0) {
-      _fromCtrl.clear();
-      return;
-    }
+    if (amount == 0) { _fromCtrl.clear(); return; }
     final result = _convert(amount, _toCurrency, _fromCurrency);
     _fromCtrl.text = result.toStringAsFixed(result < 1 ? 4 : 2);
   }
@@ -75,8 +144,6 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final fromC = _currencies[_fromCurrency]!;
-    final toC = _currencies[_toCurrency]!;
     final rate = _convert(1, _fromCurrency, _toCurrency);
 
     return Scaffold(
@@ -88,11 +155,45 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: AppColors.textPrimary,
+        actions: [
+          IconButton(
+            icon: _isLoading
+                ? const SizedBox(width: 18, height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2))
+                : Icon(_hasError ? Icons.wifi_off_rounded : Icons.refresh_rounded,
+                    color: _hasError ? Colors.orange : AppColors.primaryBlue),
+            onPressed: _isLoading ? null : _fetchRates,
+            tooltip: 'تحديث الأسعار',
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSizes.paddingL),
         child: Column(
           children: [
+            // Error banner
+            if (_hasError)
+              Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.wifi_off_rounded, color: Colors.orange, size: 16),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text('لا يوجد اتصال — يتم عرض أسعار تقديرية',
+                          style: TextStyle(fontFamily: 'Cairo',
+                              fontSize: 12, color: Colors.orange)),
+                    ),
+                  ],
+                ),
+              ),
+
             // Converter card
             Container(
               padding: const EdgeInsets.all(AppSizes.paddingL),
@@ -111,11 +212,14 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
                       color: AppColors.primaryBlue.withValues(alpha: 0.06),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Text(
-                      '1 $_fromCurrency = ${rate.toStringAsFixed(rate < 1 ? 4 : 2)} $_toCurrency',
-                      style: const TextStyle(fontFamily: 'Cairo',
-                          color: AppColors.primaryBlue, fontWeight: FontWeight.bold),
-                    ),
+                    child: _isLoading
+                        ? const SizedBox(height: 20, width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2))
+                        : Text(
+                            '1 $_fromCurrency = ${rate.toStringAsFixed(rate < 1 ? 4 : 2)} $_toCurrency',
+                            style: const TextStyle(fontFamily: 'Cairo',
+                                color: AppColors.primaryBlue, fontWeight: FontWeight.bold),
+                          ),
                   ),
                   const SizedBox(height: 20),
 
@@ -124,8 +228,8 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
                     label: 'من',
                     controller: _fromCtrl,
                     currency: _fromCurrency,
-                    flag: fromC.flag,
-                    name: fromC.name,
+                    flag: _currencyMeta[_fromCurrency]!.flag,
+                    name: _currencyMeta[_fromCurrency]!.name,
                     onChanged: _onFromChanged,
                     onCurrencyTap: () => _pickCurrency(true),
                   ),
@@ -136,8 +240,7 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
                     child: GestureDetector(
                       onTap: _swap,
                       child: Container(
-                        width: 44,
-                        height: 44,
+                        width: 44, height: 44,
                         decoration: BoxDecoration(
                           color: AppColors.primaryBlue,
                           shape: BoxShape.circle,
@@ -157,8 +260,8 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
                     label: 'إلى',
                     controller: _toCtrl,
                     currency: _toCurrency,
-                    flag: toC.flag,
-                    name: toC.name,
+                    flag: _currencyMeta[_toCurrency]!.flag,
+                    name: _currencyMeta[_toCurrency]!.name,
                     onChanged: _onToChanged,
                     onCurrencyTap: () => _pickCurrency(false),
                   ),
@@ -181,8 +284,7 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
               children: [100, 500, 1000, 5000, 10000, 50000, 100000]
                   .map((amt) => ActionChip(
                         label: Text('$amt',
-                            style: const TextStyle(
-                                fontFamily: 'Cairo', fontSize: 13)),
+                            style: const TextStyle(fontFamily: 'Cairo', fontSize: 13)),
                         backgroundColor: AppColors.white,
                         side: const BorderSide(color: AppColors.lightGrey),
                         onPressed: () {
@@ -195,11 +297,17 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
             const SizedBox(height: AppSizes.paddingL),
 
             // All rates table
-            const Align(
-              alignment: Alignment.centerRight,
-              child: Text('جدول أسعار الصرف',
-                  style: TextStyle(fontFamily: 'Cairo',
-                      fontSize: 14, fontWeight: FontWeight.bold)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('جدول أسعار الصرف',
+                    style: TextStyle(fontFamily: 'Cairo',
+                        fontSize: 14, fontWeight: FontWeight.bold)),
+                if (!_hasError && _lastUpdated != null)
+                  Text('محدّث الآن',
+                      style: TextStyle(fontFamily: 'Cairo',
+                          fontSize: 11, color: Colors.green[600])),
+              ],
             ),
             const SizedBox(height: 8),
             Container(
@@ -209,62 +317,73 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
                 boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04),
                     blurRadius: 8, offset: const Offset(0, 2))],
               ),
-              child: Column(
-                children: _currencies.entries
-                    .where((e) => e.key != 'YER')
-                    .toList()
-                    .asMap()
-                    .entries
-                    .map((entry) {
-                  final i = entry.key;
-                  final e = entry.value;
-                  final c = e.value;
-                  return Column(
-                    children: [
-                      ListTile(
-                        leading: Text(c.flag,
-                            style: const TextStyle(fontSize: 26)),
-                        title: Text(e.key,
-                            style: const TextStyle(fontFamily: 'Cairo',
-                                fontWeight: FontWeight.bold)),
-                        subtitle: Text(c.name,
-                            style: const TextStyle(fontFamily: 'Cairo',
-                                fontSize: 12, color: AppColors.grey)),
-                        trailing: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.end,
+              child: _isLoading
+                  ? const Padding(
+                      padding: EdgeInsets.all(32),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  : Column(
+                      children: _currencyMeta.entries
+                          .where((e) => e.key != 'YER')
+                          .toList()
+                          .asMap()
+                          .entries
+                          .map((entry) {
+                        final i = entry.key;
+                        final e = entry.value;
+                        final yerRate = _rateToYER(e.key);
+                        return Column(
                           children: [
-                            Text('${c.rateToYER.toStringAsFixed(0)} ر.ي',
-                                style: const TextStyle(fontFamily: 'Cairo',
-                                    fontWeight: FontWeight.bold, fontSize: 14)),
-                            const Text('لكل وحدة',
-                                style: TextStyle(fontFamily: 'Cairo',
-                                    fontSize: 11, color: AppColors.grey)),
+                            ListTile(
+                              leading: Text(e.value.flag,
+                                  style: const TextStyle(fontSize: 26)),
+                              title: Text(e.key,
+                                  style: const TextStyle(fontFamily: 'Cairo',
+                                      fontWeight: FontWeight.bold)),
+                              subtitle: Text(e.value.name,
+                                  style: const TextStyle(fontFamily: 'Cairo',
+                                      fontSize: 12, color: AppColors.grey)),
+                              trailing: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    '${yerRate.toStringAsFixed(yerRate >= 10 ? 0 : 2)} ر.ي',
+                                    style: const TextStyle(fontFamily: 'Cairo',
+                                        fontWeight: FontWeight.bold, fontSize: 14),
+                                  ),
+                                  const Text('لكل وحدة',
+                                      style: TextStyle(fontFamily: 'Cairo',
+                                          fontSize: 11, color: AppColors.grey)),
+                                ],
+                              ),
+                              onTap: () {
+                                setState(() {
+                                  _fromCurrency = 'YER';
+                                  _toCurrency = e.key;
+                                  _fromCtrl.clear();
+                                  _toCtrl.clear();
+                                });
+                              },
+                            ),
+                            if (i < _currencyMeta.length - 2)
+                              const Divider(height: 1, indent: 60),
                           ],
-                        ),
-                        onTap: () {
-                          setState(() {
-                            _fromCurrency = 'YER';
-                            _toCurrency = e.key;
-                            _fromCtrl.clear();
-                            _toCtrl.clear();
-                          });
-                        },
-                      ),
-                      if (i < _currencies.length - 2)
-                        const Divider(height: 1, indent: 60),
-                    ],
-                  );
-                }).toList(),
-              ),
+                        );
+                      }).toList(),
+                    ),
             ),
-            const SizedBox(height: AppSizes.paddingL),
+            const SizedBox(height: 12),
 
             // Last updated
             Text(
-              'آخر تحديث: ${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}',
-              style: const TextStyle(fontFamily: 'Cairo',
-                  fontSize: 12, color: AppColors.grey),
+              _hasError
+                  ? 'أسعار تقديرية — تحقق من الاتصال'
+                  : _lastUpdated != null
+                      ? 'آخر تحديث: ${_lastUpdated!.hour}:${_lastUpdated!.minute.toString().padLeft(2, '0')} — ${_lastUpdated!.day}/${_lastUpdated!.month}/${_lastUpdated!.year}'
+                      : '',
+              style: TextStyle(fontFamily: 'Cairo', fontSize: 12,
+                  color: _hasError ? Colors.orange : AppColors.grey),
             ),
             const SizedBox(height: AppSizes.paddingXL),
           ],
@@ -303,7 +422,7 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
             Expanded(
               child: ListView(
                 controller: sc,
-                children: _currencies.entries.map((e) => ListTile(
+                children: _currencyMeta.entries.map((e) => ListTile(
                       leading: Text(e.value.flag,
                           style: const TextStyle(fontSize: 26)),
                       title: Text(e.key,
@@ -313,8 +432,7 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
                           style: const TextStyle(fontFamily: 'Cairo',
                               fontSize: 12, color: AppColors.grey)),
                       trailing: (isFrom ? _fromCurrency : _toCurrency) == e.key
-                          ? const Icon(Icons.check_circle,
-                              color: AppColors.primaryBlue)
+                          ? const Icon(Icons.check_circle, color: AppColors.primaryBlue)
                           : null,
                       onTap: () {
                         setState(() {
@@ -335,11 +453,10 @@ class _CurrencyConverterScreenState extends State<CurrencyConverterScreen> {
   }
 }
 
-class _Currency {
+class _CurrencyMeta {
   final String name;
   final String flag;
-  final double rateToYER;
-  const _Currency(this.name, this.flag, this.rateToYER);
+  const _CurrencyMeta(this.name, this.flag);
 }
 
 class _CurrencyField extends StatelessWidget {
