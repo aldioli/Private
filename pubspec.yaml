@@ -23,6 +23,9 @@ dependencies:
   # الاتصال بالإنترنت
   http: ^1.1.0
 
+  # Gemini AI
+  google_generative_ai: ^0.4.6
+
   # التخزين المحلي
   shared_preferences: ^2.2.2
 
@@ -44,6 +47,7 @@ dependencies:
   firebase_core: ^4.6.0
   firebase_messaging: ^16.1.3
   flutter_launcher_icons: ^0.14.4
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:

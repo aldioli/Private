@@ -84,7 +84,7 @@ class _VouchersScreenState extends State<VouchersScreen>
       code: 'FLY-YP15',
       title: 'خصم 15% على تذاكر الطيران',
       merchant: 'اليمنية للطيران',
-      description: 'وفّر 15% على حجز تذاكرك عبر تطبيق يمن باي',
+      description: 'وفّر 15% على حجز تذاكرك عبر تطبيق Beepay',
       discount: '15%',
       expiry: '31 مايو 2026',
       color: Color(0xFF0097A7),

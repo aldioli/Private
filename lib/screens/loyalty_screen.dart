@@ -23,7 +23,7 @@ class LoyaltyScreen extends StatelessWidget {
     _EarnWay(Icons.receipt_long_rounded, 'دفع الفواتير', '30 نقطة / فاتورة', Color(0xFFE53935)),
     _EarnWay(Icons.people_rounded, 'دعوة صديق', '100 نقطة / صديق', Color(0xFF388E3C)),
     _EarnWay(Icons.add_circle_outline, 'إيداع رصيد', '20 نقطة / إيداع', Color(0xFF8E24AA)),
-    _EarnWay(Icons.shopping_bag_outlined, 'شراء عبر يمن باي', '2% كاشباك', Color(0xFFFA709A)),
+    _EarnWay(Icons.shopping_bag_outlined, 'شراء عبر Beepay', '2% كاشباك', Color(0xFFFA709A)),
   ];
 
   @override

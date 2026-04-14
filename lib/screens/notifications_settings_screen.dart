@@ -201,7 +201,7 @@ class _NotificationsSettingsScreenState
                 icon: Icons.newspaper_rounded,
                 iconColor: AppColors.grey,
                 title: 'الأخبار والتحديثات',
-                subtitle: 'آخر أخبار يمن باي والميزات الجديدة',
+                subtitle: 'آخر أخبار Beepay والميزات الجديدة',
                 value: _onNews,
                 onChanged: (v) => setState(() => _onNews = v),
               ),

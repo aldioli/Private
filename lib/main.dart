@@ -116,22 +116,20 @@ void main() async {
   runApp(const BeepayApp());
 }
 
+/// يعترض كل Navigator.push مجهول الاسم (MaterialPageRoute مباشر)
+/// ويعرض نحلة Beepay على الشاشة الجديدة تلقائياً
+/// لا يؤثر على المسارات المسماة (pushReplacementNamed / pushNamed)
 class BeepayNavigatorObserver extends NavigatorObserver {
-  final LoadingProvider loadingProvider;
-  BeepayNavigatorObserver(this.loadingProvider);
-
   @override
   void didPush(Route route, Route? previousRoute) {
-    if (previousRoute != null) {
-      loadingProvider.show('جاري التحميل...');
-      Future.delayed(const Duration(milliseconds: 400), loadingProvider.hide);
-    }
-  }
+    // تجاهل: أول route (لا previous)، أو مسار مسمى (تنقل تلقائي)
+    if (previousRoute == null) return;
+    if (route.settings.name != null) return;
 
-  @override
-  void didPop(Route route, Route? previousRoute) {
-    loadingProvider.show('جاري التحميل...');
-    Future.delayed(const Duration(milliseconds: 300), loadingProvider.hide);
+    final overlay = navigator?.overlay;
+    if (overlay != null) {
+      BeepayTransitionOverlay.showNavBeeOnOverlay(overlay);
+    }
   }
 }
 
@@ -171,7 +169,8 @@ class BeepayApp extends StatelessWidget {
             textDirection: TextDirection.rtl,
             child: Consumer3<AuthProvider, WalletProvider, LoadingProvider>(
               builder: (context, auth, wallet, loading, _) {
-                final isLoading = auth.isLoading || wallet.isLoading || loading.isLoading;
+                // BeepayTransitionOverlay يتولى كل أنيميشنات التنقل
+                final isLoading = wallet.isLoading;
                 return Stack(
                   children: [
                     child!,
@@ -422,11 +421,7 @@ class BeepayApp extends StatelessWidget {
           ),
         ),
 
-        navigatorObservers: [
-          BeepayNavigatorObserver(
-            Provider.of<LoadingProvider>(context, listen: false),
-          ),
-        ],
+        navigatorObservers: [BeepayNavigatorObserver()],
         home: const SplashScreen(),
 
         routes: {

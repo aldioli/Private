@@ -263,7 +263,7 @@ class PaymentReceiptScreen extends StatelessWidget {
   }
 
   void _share(BuildContext context) {
-    final text = '''إيصال عملية - يمن باي
+    final text = '''إيصال عملية - Beepay
 ━━━━━━━━━━━━━━━
 نوع العملية: $_typeLabel
 المبلغ: ${amount.toStringAsFixed(2)} ريال
@@ -272,7 +272,7 @@ class PaymentReceiptScreen extends StatelessWidget {
 رقم المرجع: $reference
 الحالة: مكتملة ✅
 ━━━━━━━━━━━━━━━
-يمن باي - محفظتك الرقمية''';
+Beepay - محفظتك الرقمية''';
 
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(

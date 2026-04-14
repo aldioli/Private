@@ -1,10 +1,11 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 import '../providers/wallet_provider.dart';
 import '../models/transaction.dart';
 import '../utils/constants.dart';
 import 'transaction_detail_screen.dart';
+import '../widgets/beepay_loading.dart';
 
 class TransactionsScreen extends StatefulWidget {
   const TransactionsScreen({super.key});
@@ -453,11 +454,10 @@ class _TxnTile extends StatelessWidget {
     }
 
     return InkWell(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => TransactionDetailScreen(transaction: txn),
-        ),
+      onTap: () => BeepayTransitionOverlay.navigate(
+        context: context,
+        onNavigate: () => Navigator.push(context,
+            MaterialPageRoute(builder: (_) => TransactionDetailScreen(transaction: txn))),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -498,13 +498,16 @@ class _TxnTile extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(
-                  '${isOut ? '-' : '+'}${txn.amount.toStringAsFixed(0)} ر',
-                  style: TextStyle(
-                      fontFamily: 'Cairo',
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: isOut ? AppColors.error : AppColors.success),
+                Directionality(
+                  textDirection: TextDirection.ltr,
+                  child: Text(
+                    '${isOut ? '-' : '+'}${txn.amount.toStringAsFixed(0)} ر',
+                    style: TextStyle(
+                        fontFamily: 'Cairo',
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: isOut ? AppColors.error : AppColors.success),
+                  ),
                 ),
                 if (txn.isPending)
                   Container(
@@ -557,13 +560,16 @@ class _TxnTile extends StatelessWidget {
                     fontSize: 18,
                     fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
-            Text(
-              '${isOut ? '-' : '+'}${txn.amount.toStringAsFixed(2)} ريال',
-              style: TextStyle(
-                  fontFamily: 'Cairo',
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: isOut ? AppColors.error : AppColors.success),
+            Directionality(
+              textDirection: TextDirection.ltr,
+              child: Text(
+                '${isOut ? '-' : '+'}${txn.amount.toStringAsFixed(2)} ريال',
+                style: TextStyle(
+                    fontFamily: 'Cairo',
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: isOut ? AppColors.error : AppColors.success),
+              ),
             ),
             const SizedBox(height: 20),
             const Divider(),

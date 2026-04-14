@@ -1,6 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 import '../models/transaction.dart';
 import '../utils/constants.dart';
 
@@ -86,13 +86,16 @@ class TransactionDetailScreen extends StatelessWidget {
                     child: Icon(icon, color: iconColor, size: 40),
                   ),
                   const SizedBox(height: AppSizes.paddingM),
-                  Text(
-                    '${isOutgoing ? '-' : '+'}${transaction.amount.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontSize: 40,
-                      fontWeight: FontWeight.bold,
-                      color: isOutgoing ? AppColors.error : AppColors.success,
-                      fontFamily: 'Cairo',
+                  Directionality(
+                    textDirection: TextDirection.ltr,
+                    child: Text(
+                      '${isOutgoing ? '-' : '+'}${transaction.amount.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold,
+                        color: isOutgoing ? AppColors.error : AppColors.success,
+                        fontFamily: 'Cairo',
+                      ),
                     ),
                   ),
                   Text(
@@ -254,12 +257,15 @@ class _DetailRow extends StatelessWidget {
           ),
           Row(
             children: [
-              Text(
-                value.length > 20 ? '${value.substring(0, 20)}...' : value,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'Cairo',
-                  fontSize: 14,
+              Directionality(
+                textDirection: TextDirection.ltr,
+                child: Text(
+                  value.length > 20 ? '${value.substring(0, 20)}...' : value,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Cairo',
+                    fontSize: 14,
+                  ),
                 ),
               ),
               if (copyable) ...[

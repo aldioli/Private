@@ -132,11 +132,13 @@ class _BeneficiariesScreenState extends State<BeneficiariesScreen> {
                             fontFamily: 'Cairo',
                             fontWeight: FontWeight.bold,
                             fontSize: 17)),
-                    Text(b.walletNumber,
-                        style: const TextStyle(
-                            fontFamily: 'Cairo',
-                            color: AppColors.grey,
-                            fontSize: 13)),
+                    Directionality(
+                        textDirection: TextDirection.ltr,
+                        child: Text(b.walletNumber,
+                            style: const TextStyle(
+                                fontFamily: 'Cairo',
+                                color: AppColors.grey,
+                                fontSize: 13))),
                   ],
                 ),
               ],

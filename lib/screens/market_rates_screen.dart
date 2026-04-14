@@ -324,7 +324,7 @@ class _CurrenciesTab extends StatelessWidget {
                         size: 16, color: AppColors.grey),
                     const SizedBox(width: 4),
                     Text(
-                      'آخر تحديث: ${lastUpdated.hour}:${lastUpdated.minute.toString().padLeft(2, '0')} — سعر يمن باي',
+                      'آخر تحديث: ${lastUpdated.hour}:${lastUpdated.minute.toString().padLeft(2, '0')} — سعر Beepay',
                       style: const TextStyle(
                         fontFamily: 'Cairo',
                         fontSize: 12,

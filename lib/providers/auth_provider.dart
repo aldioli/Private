@@ -77,6 +77,23 @@ class AuthProvider with ChangeNotifier {
         _errorMessage = 'يرجى تأكيد البريد الإلكتروني';
       }
     } catch (e) {
+      final s = e.toString().toLowerCase();
+      final isNetwork = s.contains('socketexception') ||
+          s.contains('failed host') ||
+          s.contains('connection refused') ||
+          s.contains('network is unreachable') ||
+          s.contains('failed to fetch') ||
+          s.contains('clientexception') ||
+          s.contains('xmlhttprequest') ||
+          s.contains('net::err') ||
+          s.contains('errno = 7') ||
+          s.contains('errno = 101');
+      if (isNetwork) {
+        // خطأ شبكة — ارمِه للـ overlay حتى يُعيد المحاولة
+        _isLoading = false;
+        notifyListeners();
+        rethrow;
+      }
       _errorMessage = 'حدث خطأ، يرجى المحاولة مجدداً';
     }
 
@@ -185,7 +202,7 @@ class AuthProvider with ChangeNotifier {
     );
     _isAuthenticated = true;
     _isGuest = true;
-    notifyListeners();
+    WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
   }
 
   Future<void> logout() async {

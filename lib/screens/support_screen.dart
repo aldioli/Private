@@ -1,4 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import '../utils/constants.dart';
 
@@ -14,26 +16,32 @@ class _SupportScreenState extends State<SupportScreen> {
   final _scrollController = ScrollController();
   bool _isTyping = false;
 
+  static const _apiKey = String.fromEnvironment('GROQ_API_KEY', defaultValue: '');
+  static const _model = 'llama-3.3-70b-versatile';
+
+  static const _systemPrompt =
+      'أنت مساعد دعم فني ذكي لتطبيق Beepay، محفظة رقمية يمنية. '
+      'تتحدث بالعربية فقط. ردودك قصيرة وواضحة ومفيدة. '
+      'معلومات التطبيق: '
+      'رسوم التحويل الداخلي 0.5% (حد أدنى 50 ريال)، الخارجي 1%، دفع الفواتير مجاني. '
+      'الحد الأدنى للسحب 1000 ريال عبر وكيل معتمد أو تحويل بنكي. '
+      'توثيق الهوية KYC يستغرق 24-48 ساعة. '
+      'التسجيل يتم برقم الهاتف. '
+      'للتواصل: support@beepay.ye أو +967-777-182-233. '
+      'إذا لم تعرف الإجابة قل للمستخدم أن يتواصل مع الدعم مباشرة.';
+
+  // تاريخ المحادثة للـ Groq API
+  final List<Map<String, String>> _history = [];
+
   final List<_Message> _messages = [
     _Message(
-      text: 'مرحباً بك في دعم Beepay 👋\nأنا مساعدك الافتراضي، كيف يمكنني مساعدتك اليوم؟',
+      text: 'مرحباً بك في دعم Beepay 👋\nأنا مساعدك الذكي، كيف يمكنني مساعدتك اليوم؟',
       isAgent: true,
       time: DateTime.now().subtract(const Duration(minutes: 1)),
     ),
   ];
 
-  // ردود تلقائية حسب الكلمات المفتاحية
-  static const _autoReplies = {
-    'رصيد': 'يمكنك مراجعة رصيدك من الشاشة الرئيسية في التطبيق. إذا واجهت مشكلة في عرض الرصيد، حاول تحديث الصفحة أو تسجيل الخروج وإعادة الدخول.',
-    'تحويل': 'لإجراء تحويل، اضغط على زر "تحويل" في الشاشة الرئيسية، وأدخل رقم المحفظة والمبلغ المراد تحويله. تأكد من صحة رقم المستلم قبل التأكيد.',
-    'كلمة المرور': 'إذا نسيت كلمة مرورك، استخدم خيار "نسيت كلمة المرور" في شاشة تسجيل الدخول. سيتم إرسال رمز التحقق إلى رقم هاتفك.',
-    'رسوم': 'رسوم التحويل الداخلي: 0.5% من المبلغ (الحد الأدنى 50 ريال).\nالتحويل الخارجي: 1%.\nدفع الفواتير: مجاني.',
-    'حساب': 'لتفعيل حسابك بالكامل، يجب اجتياز التحقق من الهوية (KYC). اذهب إلى: الملف الشخصي ← توثيق الهوية.',
-    'توثيق': 'خطوات التوثيق:\n1. اختر نوع الهوية\n2. ارفع صورة الوجه الأمامي\n3. ارفع صورة الوجه الخلفي\n4. التقط سيلفي\nسيتم مراجعة طلبك خلال 24-48 ساعة.',
-    'سحب': 'يمكنك سحب الرصيد عبر:\n• وكيل معتمد في منطقتك\n• تحويل بنكي لحسابك البنكي\nالحد الأدنى للسحب: 1,000 ريال.',
-  };
-
-  void _sendMessage(String text) {
+  Future<void> _sendMessage(String text) async {
     if (text.trim().isEmpty) return;
     setState(() {
       _messages.add(_Message(text: text, isAgent: false, time: DateTime.now()));
@@ -42,26 +50,62 @@ class _SupportScreenState extends State<SupportScreen> {
     });
     _scrollToBottom();
 
-    // تأخير الرد التلقائي
-    Future.delayed(const Duration(milliseconds: 1200), () {
+    _history.add({'role': 'user', 'content': text});
+
+    try {
+      final messages = [
+        {'role': 'system', 'content': _systemPrompt},
+        ..._history,
+      ];
+
+      final response = await http.post(
+        Uri.parse('https://api.groq.com/openai/v1/chat/completions'),
+        headers: {
+          'Authorization': 'Bearer $_apiKey',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'model': _model,
+          'messages': messages,
+          'max_tokens': 512,
+          'temperature': 0.7,
+        }),
+      );
+
       if (!mounted) return;
-      final reply = _getReply(text);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final reply = data['choices'][0]['message']['content'] as String;
+        _history.add({'role': 'assistant', 'content': reply});
+        setState(() {
+          _isTyping = false;
+          _messages.add(_Message(text: reply, isAgent: true, time: DateTime.now()));
+        });
+      } else {
+        _history.removeLast();
+        setState(() {
+          _isTyping = false;
+          _messages.add(_Message(
+            text: 'عذراً، حدث خطأ. حاول مجدداً.',
+            isAgent: true,
+            time: DateTime.now(),
+          ));
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+      _history.removeLast();
       setState(() {
         _isTyping = false;
-        _messages.add(_Message(text: reply, isAgent: true, time: DateTime.now()));
+        _messages.add(_Message(
+          text: 'تعذّر الاتصال. تأكد من الإنترنت وحاول مجدداً.',
+          isAgent: true,
+          time: DateTime.now(),
+        ));
       });
-      _scrollToBottom();
-    });
-  }
-
-  String _getReply(String input) {
-    final lower = input.toLowerCase();
-    for (final entry in _autoReplies.entries) {
-      if (lower.contains(entry.key) || input.contains(entry.key)) {
-        return entry.value;
-      }
     }
-    return 'شكراً على تواصلك! تم تسجيل استفسارك وسيتواصل معك أحد ممثلي خدمة العملاء خلال ساعات العمل (8ص - 8م).\n\nيمكنك أيضاً التواصل معنا عبر:\n📞 هاتف: 967-780-XXX-XXX+\n📧 بريد: support@yemenpay.ye';
+    _scrollToBottom();
   }
 
   void _scrollToBottom() {
@@ -208,7 +252,7 @@ class _SupportScreenState extends State<SupportScreen> {
                       controller: _controller,
                       maxLines: null,
                       textInputAction: TextInputAction.send,
-                      onSubmitted: _sendMessage,
+                      onSubmitted: (v) => _sendMessage(v),
                       style: const TextStyle(fontFamily: 'Cairo', fontSize: 14),
                       decoration: const InputDecoration(
                         hintText: 'اكتب رسالتك...',

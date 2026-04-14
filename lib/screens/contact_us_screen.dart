@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../utils/constants.dart';
 
 class ContactUsScreen extends StatefulWidget {
@@ -26,38 +27,38 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
     'أخرى',
   ];
 
-  final List<Map<String, dynamic>> _contactMethods = [
+  List<Map<String, dynamic>> get _contactMethods => [
     {
       'icon': Icons.phone_rounded,
       'label': 'اتصل بنا',
-      'value': '800 YEMEN (93636)',
+      'value': '+967 777 182 233',
       'subtitle': 'متاح 24/7',
-      'color': Color(0xFF1565C0),
-      'onTap': () {},
+      'color': const Color(0xFF1565C0),
+      'url': 'tel:+967777182233',
     },
     {
       'icon': Icons.chat_rounded,
       'label': 'واتساب',
-      'value': '+967 777 000 111',
+      'value': '+967 777 182 233',
       'subtitle': 'رد خلال دقائق',
-      'color': Color(0xFF25D366),
-      'onTap': () {},
+      'color': const Color(0xFF25D366),
+      'url': 'https://wa.me/967777182233',
     },
     {
       'icon': Icons.email_rounded,
       'label': 'البريد الإلكتروني',
-      'value': 'support@yemenpay.ye',
+      'value': 'h@aldioli.us',
       'subtitle': 'رد خلال 24 ساعة',
-      'color': Color(0xFFE53935),
-      'onTap': () {},
+      'color': const Color(0xFFE53935),
+      'url': 'mailto:h@aldioli.us',
     },
     {
       'icon': Icons.location_on_rounded,
       'label': 'زيارتنا',
       'value': 'صنعاء — شارع التحرير',
       'subtitle': 'الأحد–الخميس 8ص–4م',
-      'color': Color(0xFF388E3C),
-      'onTap': () {},
+      'color': const Color(0xFF388E3C),
+      'url': null,
     },
   ];
 
@@ -181,17 +182,25 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
             childAspectRatio: 2.4,
             children: _contactMethods.map((m) {
               return GestureDetector(
-                onTap: () {
-                  Clipboard.setData(
-                      ClipboardData(text: m['value'] as String));
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('تم نسخ: ${m['value']}',
-                          style:
-                              const TextStyle(fontFamily: 'Cairo')),
-                      duration: const Duration(seconds: 2),
-                    ),
-                  );
+                onTap: () async {
+                  final url = m['url'] as String?;
+                  if (url != null) {
+                    final uri = Uri.parse(url);
+                    if (await canLaunchUrl(uri)) {
+                      await launchUrl(uri, mode: LaunchMode.externalApplication);
+                      return;
+                    }
+                  }
+                  Clipboard.setData(ClipboardData(text: m['value'] as String));
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('تم نسخ: ${m['value']}',
+                            style: const TextStyle(fontFamily: 'Cairo')),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  }
                 },
                 child: Container(
                   padding: const EdgeInsets.symmetric(
@@ -237,12 +246,17 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                                 fontSize: 12,
                               ),
                             ),
-                            Text(
-                              m['subtitle'] as String,
-                              style: const TextStyle(
-                                fontFamily: 'Cairo',
-                                fontSize: 10,
-                                color: AppColors.grey,
+                            Directionality(
+                              textDirection: TextDirection.ltr,
+                              child: Text(
+                                m['value'] as String,
+                                style: TextStyle(
+                                  fontFamily: 'Cairo',
+                                  fontSize: 10,
+                                  color: m['color'] as Color,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],

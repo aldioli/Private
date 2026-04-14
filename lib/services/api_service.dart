@@ -105,7 +105,7 @@ class ApiService {
       fullName: 'أحمد علي الحمدي',
       phoneNumber: '+967777123456',
       walletNumber: '120000000001',
-      email: 'ahmed@yemenpay.ye',
+      email: 'ahmed@beepay.ye',
       isVerified: true,
       createdAt: DateTime(2024, 1, 15),
     );

@@ -53,21 +53,19 @@ class AboutScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: Center(
-                      child: Text(
-                        'YP',
-                        style: const TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1565C0),
-                          fontFamily: 'Cairo',
-                        ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(22),
+                      child: Image.asset(
+                        'assets/images/app_icon.png',
+                        width: 90,
+                        height: 90,
+                        fit: BoxFit.cover,
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
                   const Text(
-                    'يمن باي',
+                    'Beepay',
                     style: TextStyle(
                       fontFamily: 'Cairo',
                       fontSize: 26,
@@ -198,7 +196,7 @@ class AboutScreen extends StatelessWidget {
                       title: 'تراخيص المكتبات',
                       onTap: () => showLicensePage(
                         context: context,
-                        applicationName: 'يمن باي',
+                        applicationName: 'Beepay',
                         applicationVersion: _version,
                       ),
                     ),
@@ -217,7 +215,7 @@ class AboutScreen extends StatelessWidget {
                     _ActionRow(
                       icon: Icons.language,
                       title: 'الموقع الرسمي',
-                      value: 'www.yemenpay.ye',
+                      value: 'www.beepay.ye',
                       iconColor: AppColors.primaryBlue,
                       onTap: () {},
                     ),
@@ -225,7 +223,7 @@ class AboutScreen extends StatelessWidget {
                     _ActionRow(
                       icon: Icons.email_outlined,
                       title: 'البريد الإلكتروني',
-                      value: 'support@yemenpay.ye',
+                      value: 'support@beepay.ye',
                       iconColor: AppColors.primaryBlue,
                       onTap: () {},
                     ),
@@ -233,7 +231,7 @@ class AboutScreen extends StatelessWidget {
                     _ActionRow(
                       icon: Icons.phone_outlined,
                       title: 'الدعم الهاتفي',
-                      value: '920 000 00',
+                      value: '+967 777 182 233',
                       iconColor: AppColors.primaryBlue,
                       onTap: () {},
                     ),
@@ -265,7 +263,7 @@ class AboutScreen extends StatelessWidget {
                       iconColor: AppColors.primaryBlue,
                       onTap: () {
                         Clipboard.setData(const ClipboardData(
-                            text: 'حمّل يمن باي: https://yemenpay.ye/app'));
+                            text: 'حمّل Beepay: https://beepay.ye/app'));
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text(
@@ -285,7 +283,7 @@ class AboutScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         const Text(
-                          '© 2026 يمن باي للخدمات المالية الرقمية',
+                          '© 2026 Beepay للخدمات المالية الرقمية',
                           style: TextStyle(
                             fontFamily: 'Cairo',
                             fontSize: 12,
@@ -365,7 +363,7 @@ class AboutScreen extends StatelessWidget {
         _LegalSection(
           title: '5. حقوقك',
           body:
-              'لك الحق في الاطلاع على بياناتك، وطلب تصحيحها أو حذفها. تواصل معنا على privacy@yemenpay.ye لأي استفسار.',
+              'لك الحق في الاطلاع على بياناتك، وطلب تصحيحها أو حذفها. تواصل معنا على privacy@beepay.ye لأي استفسار.',
         ),
       ],
     );
@@ -380,12 +378,12 @@ class AboutScreen extends StatelessWidget {
         _LegalSection(
           title: '1. قبول الشروط',
           body:
-              'باستخدام تطبيق يمن باي، فإنك توافق على هذه الشروط والأحكام. إذا كنت لا توافق، يُرجى التوقف عن استخدام التطبيق.',
+              'باستخدام تطبيق Beepay، فإنك توافق على هذه الشروط والأحكام. إذا كنت لا توافق، يُرجى التوقف عن استخدام التطبيق.',
         ),
         _LegalSection(
           title: '2. الأهلية',
           body:
-              'يجب أن يكون عمرك 18 عاماً أو أكثر لاستخدام يمن باي. بتسجيل حساب، تؤكد أنك مقيم في الجمهورية اليمنية.',
+              'يجب أن يكون عمرك 18 عاماً أو أكثر لاستخدام Beepay. بتسجيل حساب، تؤكد أنك مقيم في الجمهورية اليمنية.',
         ),
         _LegalSection(
           title: '3. الحدود والرسوم',
@@ -400,7 +398,7 @@ class AboutScreen extends StatelessWidget {
         _LegalSection(
           title: '5. المسؤولية',
           body:
-              'يمن باي غير مسؤولة عن أي خسائر ناتجة عن الاستخدام غير المصرح به لحسابك. أبلغنا فوراً عن أي نشاط مشبوه.',
+              'Beepay غير مسؤولة عن أي خسائر ناتجة عن الاستخدام غير المصرح به لحسابك. أبلغنا فوراً عن أي نشاط مشبوه.',
         ),
         _LegalSection(
           title: '6. إنهاء الخدمة',
@@ -430,12 +428,12 @@ class AboutScreen extends StatelessWidget {
         _LegalSection(
           title: 'الامتثال',
           body:
-              'يمن باي متوافق مع متطلبات البنك المركزي اليمني لأنظمة الدفع الإلكتروني (قرار 2022/15).',
+              'Beepay متوافق مع متطلبات البنك المركزي اليمني لأنظمة الدفع الإلكتروني (قرار 2022/15).',
         ),
         _LegalSection(
           title: 'الإبلاغ عن الثغرات',
           body:
-              'إذا اكتشفت ثغرة أمنية، يُرجى الإبلاغ عنها مباشرةً إلى: security@yemenpay.ye. نلتزم بالرد خلال 48 ساعة.',
+              'إذا اكتشفت ثغرة أمنية، يُرجى الإبلاغ عنها مباشرةً إلى: security@beepay.ye. نلتزم بالرد خلال 48 ساعة.',
         ),
       ],
     );
@@ -604,11 +602,13 @@ class _InfoRow extends StatelessWidget {
               style: const TextStyle(
                   fontFamily: 'Cairo', color: AppColors.grey, fontSize: 14)),
           const Spacer(),
-          Text(value,
-              style: const TextStyle(
-                  fontFamily: 'Cairo',
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14)),
+          Directionality(
+              textDirection: TextDirection.ltr,
+              child: Text(value,
+                  style: const TextStyle(
+                      fontFamily: 'Cairo',
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14))),
         ],
       ),
     );
@@ -651,11 +651,15 @@ class _ActionRow extends StatelessWidget {
                           fontSize: 15,
                           fontWeight: FontWeight.w500)),
                   if (value != null)
-                    Text(value!,
-                        style: const TextStyle(
-                            fontFamily: 'Cairo',
-                            fontSize: 12,
-                            color: AppColors.grey)),
+                    Directionality(
+                      textDirection: TextDirection.ltr,
+                      child: Text(value!,
+                          textAlign: TextAlign.right,
+                          style: const TextStyle(
+                              fontFamily: 'Cairo',
+                              fontSize: 12,
+                              color: AppColors.grey)),
+                    ),
                 ],
               ),
             ),

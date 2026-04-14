@@ -5,6 +5,7 @@ import '../utils/constants.dart';
 import 'change_password_screen.dart';
 import 'faq_screen.dart';
 import 'referral_screen.dart';
+import '../widgets/beepay_loading.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -97,11 +98,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       icon: Icons.lock_reset_rounded,
                       title: 'تغيير كلمة المرور',
                       color: AppColors.warning,
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const ChangePasswordScreen(),
-                        ),
+                      onTap: () => BeepayTransitionOverlay.navigate(
+                        context: context,
+                        onNavigate: () => Navigator.push(context,
+                            MaterialPageRoute(builder: (_) => const ChangePasswordScreen())),
                       ),
                     ),
                     const Divider(height: 1, indent: 60),
@@ -169,9 +169,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       title: 'ادعُ أصدقاءك',
                       subtitle: 'اكسب 500 ريال لكل صديق',
                       color: AppColors.accentYellow,
-                      onTap: () => Navigator.push(context,
-                          MaterialPageRoute(
-                              builder: (_) => const ReferralScreen())),
+                      onTap: () => BeepayTransitionOverlay.navigate(
+                          context: context,
+                          onNavigate: () => Navigator.push(context,
+                              MaterialPageRoute(builder: (_) => const ReferralScreen()))),
                     ),
                     const Divider(height: 1, indent: 60),
                     _ActionTile(
@@ -179,9 +180,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       title: 'الأسئلة الشائعة',
                       subtitle: 'إجابات لأكثر الأسئلة شيوعاً',
                       color: AppColors.info,
-                      onTap: () => Navigator.push(context,
-                          MaterialPageRoute(
-                              builder: (_) => const FaqScreen())),
+                      onTap: () => BeepayTransitionOverlay.navigate(
+                          context: context,
+                          onNavigate: () => Navigator.push(context,
+                              MaterialPageRoute(builder: (_) => const FaqScreen()))),
                     ),
                     const Divider(height: 1, indent: 60),
                     _ActionTile(

@@ -81,7 +81,7 @@ class _RequestMoneyScreenState extends State<RequestMoneyScreen>
     final amount = _amountController.text.trim();
     final note = _noteController.text.trim();
     final text =
-        'طلب دفع عبر يمن باي\nرقم المحفظة: $walletNumber\nالمبلغ: $amount ر.ي${note.isNotEmpty ? '\nالملاحظة: $note' : ''}';
+        'طلب دفع عبر Beepay\nرقم المحفظة: $walletNumber\nالمبلغ: $amount ر.ي${note.isNotEmpty ? '\nالملاحظة: $note' : ''}';
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(

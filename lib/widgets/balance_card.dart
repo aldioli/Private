@@ -8,6 +8,7 @@ import '../screens/transfer_screen.dart';
 import '../screens/receive_screen.dart';
 import '../screens/deposit_screen.dart';
 import 'shimmer_loading.dart';
+import 'beepay_loading.dart';
 
 class BalanceCard extends StatefulWidget {
   const BalanceCard({super.key});
@@ -117,20 +118,23 @@ class _BalanceCardState extends State<BalanceCard> {
                   _QuickAction(
                     icon: Icons.send_rounded,
                     label: 'تحويل',
-                    onTap: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const TransferScreen())),
+                    onTap: () => BeepayTransitionOverlay.navigate(context: context,
+                        onNavigate: () => Navigator.push(context,
+                            MaterialPageRoute(builder: (_) => const TransferScreen()))),
                   ),
                   _QuickAction(
                     icon: Icons.call_received_rounded,
                     label: 'استقبال',
-                    onTap: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const ReceiveScreen())),
+                    onTap: () => BeepayTransitionOverlay.navigate(context: context,
+                        onNavigate: () => Navigator.push(context,
+                            MaterialPageRoute(builder: (_) => const ReceiveScreen()))),
                   ),
                   _QuickAction(
                     icon: Icons.add_rounded,
                     label: 'إيداع',
-                    onTap: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const DepositScreen())),
+                    onTap: () => BeepayTransitionOverlay.navigate(context: context,
+                        onNavigate: () => Navigator.push(context,
+                            MaterialPageRoute(builder: (_) => const DepositScreen()))),
                   ),
                 ],
               ),

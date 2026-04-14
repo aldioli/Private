@@ -1,6 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 import '../providers/wallet_provider.dart';
 import '../models/transaction.dart';
 import '../utils/constants.dart';
@@ -205,13 +205,16 @@ class _TransactionItem extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Text(
-            '${isOutgoing ? '-' : '+'}${transaction.amount.toStringAsFixed(0)}',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: isOutgoing ? AppColors.error : AppColors.success,
-              fontFamily: 'Cairo',
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Text(
+              '${isOutgoing ? '-' : '+'}${transaction.amount.toStringAsFixed(0)}',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: isOutgoing ? AppColors.error : AppColors.success,
+                fontFamily: 'Cairo',
+              ),
             ),
           ),
           if (transaction.isPending)

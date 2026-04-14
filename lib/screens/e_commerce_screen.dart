@@ -1,7 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 import '../utils/constants.dart';
 
-/// شاشة التسوق الإلكتروني — منتجات مباشرة قابلة للشراء عبر يمن باي
+/// شاشة التسوق الإلكتروني — منتجات مباشرة قابلة للشراء عبر Beepay
 class ECommerceScreen extends StatefulWidget {
   const ECommerceScreen({super.key});
 

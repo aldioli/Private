@@ -1,6 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/constants.dart';
+import 'beepay_loading.dart';
 
 /// قائمة أفقية للوصول السريع — تُخزَّن الاختصارات المثبَّتة في SharedPreferences
 class PinnedShortcutsWidget extends StatefulWidget {
@@ -220,7 +221,10 @@ class _ShortcutChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.pushNamed(context, shortcut.route),
+      onTap: () => BeepayTransitionOverlay.navigate(
+        context: context,
+        onNavigate: () => Navigator.pushNamed(context, shortcut.route),
+      ),
       child: Container(
         width: 72,
         decoration: BoxDecoration(

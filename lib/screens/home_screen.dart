@@ -13,6 +13,7 @@ import '../widgets/monthly_summary_widget.dart';
 import '../widgets/pinned_shortcuts_widget.dart';
 import 'notifications_screen.dart';
 import 'qr_scan_screen.dart';
+import '../widgets/beepay_loading.dart';
 import '../services/api_service.dart';
 import '../providers/notifications_provider.dart';
 
@@ -93,22 +94,21 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: const Icon(Icons.qr_code_scanner_rounded),
             tooltip: 'مسح QR',
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const QrScanScreen()),
+            onPressed: () => BeepayTransitionOverlay.navigate(
+              context: context,
+              onNavigate: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const QrScanScreen())),
             ),
           ),
           Stack(
             children: [
               IconButton(
                 icon: const Icon(Icons.notifications_outlined),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const NotificationsScreen()),
-                  );
-                },
+                onPressed: () => BeepayTransitionOverlay.navigate(
+                  context: context,
+                  onNavigate: () => Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const NotificationsScreen())),
+                ),
               ),
               if (notifProvider.hasUnread)
                 Positioned(

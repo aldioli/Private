@@ -309,18 +309,21 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_formKey.currentState!.validate()) {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-      bool success = false;
       await BeepayTransitionOverlay.show(
         context: context,
         operation: () async {
-          success = await authProvider.login(
+          final success = await authProvider.login(
             '+967${_phoneController.text}',
             _pinController.text,
           );
-          if (success) await NotificationService.initialize();
+          if (!success) {
+            // خطأ مصادقة (كلمة مرور خاطئة) — يُغلق الـ overlay فوراً
+            throw Exception(authProvider.errorMessage ?? 'login_failed');
+          }
+          await NotificationService.initialize();
         },
         onDone: () {
-          if (success) Navigator.pushReplacementNamed(context, '/home');
+          Navigator.pushReplacementNamed(context, '/home');
         },
       );
     }
