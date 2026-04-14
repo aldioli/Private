@@ -1,0 +1,17 @@
+{
+  "project": "beepay",
+  "platform": "ios",
+  "github": {
+    "owner": "aldioli",
+    "repo": "Private"
+  },
+  "ios": {
+    "path": "ios"
+  },
+  "flutter": {
+    "version": "3.41.6",
+    "watch": {}
+  },
+  "reactNative": {},
+  "mobai": {}
+}
