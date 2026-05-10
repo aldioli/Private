@@ -72,6 +72,10 @@ class AppConstants {
 
   // API (ستحتاج لتغييره للسيرفر الفعلي)
   static const String baseUrl = 'https://api.beepay.ye';
+
+  // Supabase — المفتاح العام (anon) آمن في كود العميل
+  static const String supabaseUrl = 'https://wiqldyzkqsehfcwhakws.supabase.co';
+  static const String supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndpcWxkeXprcXNlaGZjd2hha3dzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMTAxNDAsImV4cCI6MjA5MDg4NjE0MH0.NsI-qEpi1PHmXuF397x_mDghasRHFtTYEV5xp95UkpE';
   static const String apiVersion = 'v1';
   
   // أطوال الحقول

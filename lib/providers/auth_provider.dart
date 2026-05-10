@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/user.dart' as app_user;
+import '../services/encryption_service.dart';
+import '../utils/constants.dart';
 
 class AuthProvider with ChangeNotifier {
-  static const _supabaseUrl = 'https://wiqldyzkqsehfcwhakws.supabase.co';
-  static const _serviceRoleKey =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndpcWxkeXprcXNlaGZjd2hha3dzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTMxMDE0MCwiZXhwIjoyMDkwODg2MTQwfQ.nXX6JpU6oI184fnQ1lWMrhp9kNzfomOlkUL-qX6KdJ0';
+  static const _supabaseUrl = AppConstants.supabaseUrl;
   app_user.User? _user;
   bool _isAuthenticated = false;
   bool _isLoading = false;
@@ -52,9 +52,10 @@ class AuthProvider with ChangeNotifier {
 
     try {
       final email = 'p${phoneNumber.replaceAll('+', '')}@gmail.com';
+      final hashedPin = EncryptionService.hashPin(pin);
       final response = await _supabase.auth.signInWithPassword(
         email: email,
-        password: pin,
+        password: hashedPin,
       );
 
       if (response.user != null) {
@@ -114,24 +115,20 @@ class AuthProvider with ChangeNotifier {
 
     try {
       final email = 'p${phoneNumber.replaceAll('+', '')}@gmail.com';
+      final hashedPin = EncryptionService.hashPin(pin);
 
-      // استخدام Admin API لتجاوز email rate limit
+      // التسجيل عبر Edge Function — المفتاح يبقى في السيرفر فقط
       final adminResponse = await http.post(
-        Uri.parse('$_supabaseUrl/auth/v1/admin/users'),
+        Uri.parse('$_supabaseUrl/functions/v1/register-user'),
         headers: {
-          'Authorization': 'Bearer $_serviceRoleKey',
-          'apikey': _serviceRoleKey,
           'Content-Type': 'application/json',
+          'apikey': AppConstants.supabaseAnonKey,
         },
         body: jsonEncode({
-          'email': email,
-          'password': pin,
-          'email_confirm': true,
-          'user_metadata': {
-            'full_name': fullName,
-            'phone': phoneNumber,
-            'national_id': nationalId,
-          },
+          'fullName': fullName,
+          'phoneNumber': phoneNumber,
+          'nationalId': nationalId,
+          'hashedPin': hashedPin,
         }),
       );
 
@@ -139,7 +136,7 @@ class AuthProvider with ChangeNotifier {
         // تسجيل الدخول تلقائياً بعد إنشاء الحساب
         final loginResponse = await _supabase.auth.signInWithPassword(
           email: email,
-          password: pin,
+          password: hashedPin,
         );
 
         if (loginResponse.user != null) {
@@ -151,15 +148,13 @@ class AuthProvider with ChangeNotifier {
 
           await Future.delayed(const Duration(milliseconds: 500));
           await loadUserData();
-          if (_user == null) {
-            _user = app_user.User(
-              id: loginResponse.user!.id,
-              fullName: fullName,
-              phoneNumber: phoneNumber,
-              nationalId: nationalId,
-              balance: 0,
-            );
-          }
+          _user ??= app_user.User(
+            id: loginResponse.user!.id,
+            fullName: fullName,
+            phoneNumber: phoneNumber,
+            nationalId: nationalId,
+            balance: 0,
+          );
           _isAuthenticated = true;
           _isLoading = false;
           notifyListeners();
@@ -211,6 +206,7 @@ class AuthProvider with ChangeNotifier {
 
     try {
       await _supabase.auth.signOut();
+      await EncryptionService.clearAll();
       _user = null;
       _isAuthenticated = false;
       _isGuest = false;

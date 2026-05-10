@@ -4,6 +4,7 @@ import '../utils/constants.dart';
 import '../models/user.dart';
 import '../models/wallet.dart';
 import '../models/transaction.dart';
+import 'encryption_service.dart';
 
 // خدمة الاتصال بالسيرفر
 class ApiService {
@@ -344,7 +345,7 @@ class ApiService {
         body: jsonEncode({
           'to_wallet': toWallet,
           'amount': amount,
-          'pin': pin,
+          'pin': EncryptionService.hashPin(pin),
           'description': description,
         }),
       );
@@ -390,7 +391,7 @@ class ApiService {
         headers: _getHeaders(),
         body: jsonEncode({
           'amount': amount,
-          'pin': pin,
+          'pin': EncryptionService.hashPin(pin),
         }),
       );
 
@@ -438,7 +439,7 @@ class ApiService {
           'bill_type': billType,
           'account_number': accountNumber,
           'amount': amount,
-          'pin': pin,
+          'pin': EncryptionService.hashPin(pin),
           'description': description,
         }),
       );
